@@ -1,0 +1,18 @@
+# Node
+node_modules/
+dist/
+
+# Java
+target/
+*.class
+
+# IntelliJ
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
