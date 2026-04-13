@@ -25,19 +25,22 @@ public class DataSeeder implements CommandLineRunner {
     private final UserRepository userRepository;
     private final WatchListEntryRepository watchListEntryRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AnimeRatingService animeRatingService;
 
     public DataSeeder(
             GenreRepository genreRepository,
             AnimeRepository animeRepository,
             UserRepository userRepository,
             WatchListEntryRepository watchListEntryRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            AnimeRatingService animeRatingService
     ) {
         this.genreRepository = genreRepository;
         this.animeRepository = animeRepository;
         this.userRepository = userRepository;
         this.watchListEntryRepository = watchListEntryRepository;
         this.passwordEncoder = passwordEncoder;
+        this.animeRatingService = animeRatingService;
     }
 
     @Override
@@ -59,56 +62,56 @@ public class DataSeeder implements CommandLineRunner {
         a1.setTitle("Attack on Titan");
         a1.setSynopsis("Humanity fights for survival against giant Titans behind massive walls.");
         a1.setImageUrl("/images/Belobog Display_Business Sign Set_1.png");
-        a1.setAverageRating(new BigDecimal("9.0"));
+        a1.setAverageRating(new BigDecimal("0.0"));
         a1.setGenres(setOf(action, drama, fantasy));
 
         Anime a2 = new Anime();
         a2.setTitle("Fullmetal Alchemist: Brotherhood");
         a2.setSynopsis("Two brothers use alchemy in a quest to restore what they lost.");
         a2.setImageUrl("/images/Belobog Display_Business Sign Set_2.png");
-        a2.setAverageRating(new BigDecimal("9.2"));
+        a2.setAverageRating(new BigDecimal("0.0"));
         a2.setGenres(setOf(action, adventure, fantasy));
 
         Anime a3 = new Anime();
         a3.setTitle("Your Name");
         a3.setSynopsis("Two teenagers mysteriously begin swapping bodies across time and distance.");
         a3.setImageUrl("/images/Belobog Display_Business Sign Set_3.png");
-        a3.setAverageRating(new BigDecimal("8.8"));
+        a3.setAverageRating(new BigDecimal("0.0"));
         a3.setGenres(setOf(romance, drama, fantasy));
 
         Anime a4 = new Anime();
         a4.setTitle("One Punch Man");
         a4.setSynopsis("A hero who can defeat any enemy with one punch searches for excitement.");
         a4.setImageUrl("/images/Belobog Display_Business Sign Set_4.png");
-        a4.setAverageRating(new BigDecimal("8.7"));
+        a4.setAverageRating(new BigDecimal("0.0"));
         a4.setGenres(setOf(action, comedy, sciFi));
 
         Anime a5 = new Anime();
         a5.setTitle("Naruto");
         a5.setSynopsis("A young ninja dreams of becoming the strongest leader of his village.");
         a5.setImageUrl("/images/Belobog Display_Business Sign Set_5.png");
-        a5.setAverageRating(new BigDecimal("8.4"));
+        a5.setAverageRating(new BigDecimal("0.0"));
         a5.setGenres(setOf(action, adventure));
 
         Anime a6 = new Anime();
         a6.setTitle("Demon Slayer");
         a6.setSynopsis("A boy joins a demon-slaying corps after tragedy strikes his family.");
         a6.setImageUrl("/images/Belobog Display_Business Sign Set_6.png");
-        a6.setAverageRating(new BigDecimal("8.9"));
+        a6.setAverageRating(new BigDecimal("0.0"));
         a6.setGenres(setOf(action, fantasy));
 
         Anime a7 = new Anime();
         a7.setTitle("Steins;Gate");
         a7.setSynopsis("A group of friends accidentally discover a method of sending messages through time.");
         a7.setImageUrl("/images/Belobog Display_Business Sign Set_7.png");
-        a7.setAverageRating(new BigDecimal("9.1"));
+        a7.setAverageRating(new BigDecimal("0.0"));
         a7.setGenres(setOf(sciFi, drama));
 
         Anime a8 = new Anime();
         a8.setTitle("Kaguya-sama: Love Is War");
         a8.setSynopsis("Two elite students are secretly in love and try to make the other confess first.");
         a8.setImageUrl("/images/Belobog Display_Business Sign Set_8.png");
-        a8.setAverageRating(new BigDecimal("8.6"));
+        a8.setAverageRating(new BigDecimal("0.0"));
         a8.setGenres(setOf(comedy, romance));
 
         animeRepository.save(a1);
@@ -152,6 +155,9 @@ public class DataSeeder implements CommandLineRunner {
         w3.setStatus(WatchStatus.COMPLETED);
         w3.setPersonalRating(10);
         watchListEntryRepository.save(w3);
+        animeRatingService.recalculateAverageRating(a1.getId());
+        animeRatingService.recalculateAverageRating(a2.getId());
+        animeRatingService.recalculateAverageRating(a3.getId());
     }
 
     private Genre createGenreIfNotFound(String name) {
