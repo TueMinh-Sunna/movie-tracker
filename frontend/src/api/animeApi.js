@@ -21,6 +21,10 @@ export function getAnimeList({ search = "", genre = "", sort = "" } = {}) {
   return apiFetch(path);
 }
 
+export function getAnimeById(id) {
+  return apiFetch(`/api/anime/${id}`);
+}
+
 export function getGenres() {
   return apiFetch("/api/genres");
 }
