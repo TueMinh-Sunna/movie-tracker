@@ -1,43 +1,44 @@
-#### Ping
-#GET http://localhost:8080/api/ping
-#
-#### Register
-#POST http://localhost:8080/api/auth/register
-#Content-Type: application/json
-#
-#{
-#  "username": "testuser",
-#  "email": "test@example.com",
-#  "password": "password123"
-#}
-#
-#### Login
-#POST http://localhost:8080/api/auth/login
-#Content-Type: application/json
-#
-#{
-#  "usernameOrEmail": "testuser",
-#  "password": "password123"
-#}
-#
-#### Me
-#GET http://localhost:8080/api/auth/me
-#
-#### Logout
-#POST http://localhost:8080/api/auth/logout
-#
-#############################################################################################
-#
-#### 1. Get comments for anime id 1
-#GET http://localhost:8080/api/anime/1/comments
-#
-#### 2. Try posting a comment without login
-#POST http://localhost:8080/api/anime/1/comments
-#Content-Type: application/json
-#
-#{
-#  "content": "This anime is amazing!"
-#}
+### Log in
+### Ping
+GET http://localhost:8080/api/ping
+
+### Register
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Login
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "testuser",
+  "password": "password123"
+}
+
+### Me
+GET http://localhost:8080/api/auth/me
+
+### Logout
+POST http://localhost:8080/api/auth/logout
+
+############################################################################################
+### Comments
+### 1. Get comments for anime id 1
+GET http://localhost:8080/api/anime/1/comments
+
+### 2. Try posting a comment without login
+POST http://localhost:8080/api/anime/1/comments
+Content-Type: application/json
+
+{
+  "content": "This anime is amazing!"
+}
 
 ### 3. Login first
 POST http://localhost:8080/api/auth/login
@@ -61,3 +62,45 @@ Content-Type: application/json
 
 ### 6. Get comments again
 GET http://localhost:8080/api/anime/1/comments
+
+############################################################################################
+### Watch List
+### 1. Log in first
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "demo",
+  "password": "password123"
+}
+
+### 2. Get current user watch list
+GET http://localhost:8080/api/watchlist
+
+### 3. Get one watch list entry
+GET http://localhost:8080/api/watchlist/1
+
+### 4. Add a new anime to watch list
+POST http://localhost:8080/api/watchlist
+Content-Type: application/json
+
+{
+  "animeId": 2,
+  "status": "WATCH_LATER",
+  "personalRating": 7
+}
+
+### 5. Update watch list entry
+PUT http://localhost:8080/api/watchlist/2
+Content-Type: application/json
+
+{
+  "status": "COMPLETED",
+  "personalRating": 9
+}
+
+### 6. Delete watch list entry
+DELETE http://localhost:8080/api/watchlist/2
+
+### 7. Verify the global rating really changed
+GET http://localhost:8080/api/anime/2
