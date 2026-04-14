@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../api/authApi";
+import { validateSignupForm } from "../utils/validation";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -12,18 +13,22 @@ export default function SignupPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
 
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
 
-    if (!username.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-      setError("Please fill in all fields.");
-      return;
-    }
+    const nextFieldErrors = validateSignupForm({
+      username,
+      email,
+      password,
+      confirmPassword,
+    });
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+    setFieldErrors(nextFieldErrors);
+
+    if (Object.keys(nextFieldErrors).length > 0) {
       return;
     }
 
@@ -39,6 +44,7 @@ export default function SignupPage() {
       navigate("/login");
     } catch (err) {
       setError(err.message || "Signup failed.");
+      setFieldErrors(err.validationErrors || {});
     } finally {
       setSubmitting(false);
     }
@@ -48,7 +54,7 @@ export default function SignupPage() {
     <div style={{ maxWidth: "420px", margin: "0 auto" }}>
       <h1>Sign up</h1>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <div style={{ marginBottom: "12px" }}>
           <label style={{ display: "block", marginBottom: "6px" }}>
             Username
@@ -56,9 +62,17 @@ export default function SignupPage() {
           <input
             type="text"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => {
+              setUsername(e.target.value);
+              setFieldErrors((current) => ({ ...current, username: "" }));
+            }}
             style={{ width: "100%", padding: "10px" }}
           />
+          {fieldErrors.username && (
+            <p style={{ color: "crimson", margin: "6px 0 0" }}>
+              {fieldErrors.username}
+            </p>
+          )}
         </div>
 
         <div style={{ marginBottom: "12px" }}>
@@ -68,9 +82,17 @@ export default function SignupPage() {
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setFieldErrors((current) => ({ ...current, email: "" }));
+            }}
             style={{ width: "100%", padding: "10px" }}
           />
+          {fieldErrors.email && (
+            <p style={{ color: "crimson", margin: "6px 0 0" }}>
+              {fieldErrors.email}
+            </p>
+          )}
         </div>
 
         <div style={{ marginBottom: "12px" }}>
@@ -80,9 +102,21 @@ export default function SignupPage() {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setFieldErrors((current) => ({
+                ...current,
+                password: "",
+                confirmPassword: "",
+              }));
+            }}
             style={{ width: "100%", padding: "10px" }}
           />
+          {fieldErrors.password && (
+            <p style={{ color: "crimson", margin: "6px 0 0" }}>
+              {fieldErrors.password}
+            </p>
+          )}
         </div>
 
         <div style={{ marginBottom: "12px" }}>
@@ -92,9 +126,20 @@ export default function SignupPage() {
           <input
             type="password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              setFieldErrors((current) => ({
+                ...current,
+                confirmPassword: "",
+              }));
+            }}
             style={{ width: "100%", padding: "10px" }}
           />
+          {fieldErrors.confirmPassword && (
+            <p style={{ color: "crimson", margin: "6px 0 0" }}>
+              {fieldErrors.confirmPassword}
+            </p>
+          )}
         </div>
 
         {error && (

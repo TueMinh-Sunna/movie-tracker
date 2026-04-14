@@ -11,19 +11,29 @@ export async function apiFetch(path, options = {}) {
   const contentType = response.headers.get("content-type");
 
   if (!response.ok) {
-    let errorMessage = `Request failed: ${response.status}`;
+    let errorData = {
+      status: response.status,
+      message: `Request failed: ${response.status}`,
+      validationErrors: null,
+    };
 
     if (contentType && contentType.includes("application/json")) {
       const errorBody = await response.json();
-      errorMessage = errorBody.message || errorMessage;
+
+      errorData = {
+        status: response.status,
+        message: errorBody.message || errorData.message,
+        validationErrors: errorBody.validationErrors || null,
+      };
     } else {
       const errorText = await response.text();
+
       if (errorText) {
-        errorMessage = errorText;
+        errorData.message = errorText;
       }
     }
 
-    throw new Error(errorMessage);
+    throw errorData;
   }
 
   if (contentType && contentType.includes("application/json")) {

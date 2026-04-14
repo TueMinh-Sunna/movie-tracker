@@ -54,7 +54,14 @@ export default function WatchlistPage() {
 
       await loadWatchlist();
     } catch (err) {
-      setError(err.message || "Failed to update status.");
+      const backendFieldError =
+        err.validationErrors?.status || err.validationErrors?.personalRating;
+
+      setError(
+        backendFieldError ||
+        err.message ||
+        "Failed to update status."
+      );
     } finally {
       setSavingAnimeId(null);
     }
@@ -87,7 +94,14 @@ export default function WatchlistPage() {
 
       await loadWatchlist();
     } catch (err) {
-      setError(err.message || "Failed to update rating.");
+      const backendFieldError =
+        err.validationErrors?.personalRating || err.validationErrors?.status;
+
+      setError(
+        backendFieldError ||
+        err.message ||
+        "Failed to update rating."
+      );
     } finally {
       setSavingAnimeId(null);
     }
