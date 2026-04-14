@@ -18,7 +18,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/ping").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/anime/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/genres").permitAll()
-                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/logout", "/api/auth/me").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/anime/*/comments").permitAll()
                         .anyRequest().permitAll()
                 )
                 .httpBasic(Customizer.withDefaults());
