@@ -138,7 +138,14 @@ export default function AnimeDetailsPage() {
       await loadWatchEntry();
       await loadAnimeDetails();
     } catch (err) {
-      setWatchError(err.message || "Failed to add to watchlist.");
+      const backendFieldError =
+        err.validationErrors?.personalRating || err.validationErrors?.status;
+
+      setWatchError(
+        backendFieldError ||
+        err.message ||
+        "Failed to add to watchlist."
+      );
     } finally {
       setWatchLoading(false);
     }
@@ -169,7 +176,14 @@ export default function AnimeDetailsPage() {
       await loadWatchEntry();
       await loadAnimeDetails();
     } catch (err) {
-      setWatchError(err.message || "Failed to update watchlist.");
+      const backendFieldError =
+        err.validationErrors?.personalRating || err.validationErrors?.status;
+
+      setWatchError(
+        backendFieldError ||
+        err.message ||
+        "Failed to update watchlist."
+      );
     } finally {
       setWatchLoading(false);
     }

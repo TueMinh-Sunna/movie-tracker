@@ -3,6 +3,7 @@ import { useSetRecoilState } from "recoil";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../api/authApi";
 import { authState } from "../state/authState";
+import { validateLoginForm } from "../utils/validation";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -13,13 +14,20 @@ export default function LoginPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
 
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
 
-    if (!usernameOrEmail.trim() || !password.trim()) {
-      setError("Please enter your username/email and password.");
+    const nextFieldErrors = validateLoginForm({
+      usernameOrEmail,
+      password,
+    });
+
+    setFieldErrors(nextFieldErrors);
+
+    if (Object.keys(nextFieldErrors).length > 0) {
       return;
     }
 
@@ -39,6 +47,7 @@ export default function LoginPage() {
       navigate("/browse");
     } catch (err) {
       setError(err.message || "Login failed.");
+      setFieldErrors(err.validationErrors || {});
     } finally {
       setSubmitting(false);
     }
@@ -48,7 +57,7 @@ export default function LoginPage() {
     <div style={{ maxWidth: "420px", margin: "0 auto" }}>
       <h1>Login</h1>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <div style={{ marginBottom: "12px" }}>
           <label style={{ display: "block", marginBottom: "6px" }}>
             Username or email
@@ -56,9 +65,20 @@ export default function LoginPage() {
           <input
             type="text"
             value={usernameOrEmail}
-            onChange={(e) => setUsernameOrEmail(e.target.value)}
+            onChange={(e) => {
+              setUsernameOrEmail(e.target.value);
+              setFieldErrors((current) => ({
+                ...current,
+                usernameOrEmail: "",
+              }));
+            }}
             style={{ width: "100%", padding: "10px" }}
           />
+          {fieldErrors.usernameOrEmail && (
+            <p style={{ color: "crimson", margin: "6px 0 0" }}>
+              {fieldErrors.usernameOrEmail}
+            </p>
+          )}
         </div>
 
         <div style={{ marginBottom: "12px" }}>
@@ -68,9 +88,17 @@ export default function LoginPage() {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setFieldErrors((current) => ({ ...current, password: "" }));
+            }}
             style={{ width: "100%", padding: "10px" }}
           />
+          {fieldErrors.password && (
+            <p style={{ color: "crimson", margin: "6px 0 0" }}>
+              {fieldErrors.password}
+            </p>
+          )}
         </div>
 
         {error && (
