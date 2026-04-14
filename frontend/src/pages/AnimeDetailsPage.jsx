@@ -6,6 +6,14 @@ import { createComment, getCommentsByAnimeId } from "../api/commentApi";
 import CommentList from "../components/CommentList";
 import CommentForm from "../components/CommentForm";
 import { authState } from "../state/authState";
+import {
+  addToWatchlist,
+  getWatchlistEntry,
+  removeFromWatchlist,
+  updateWatchlistEntry,
+} from "../api/watchlistApi";
+import WatchStatusSelect from "../components/WatchStatusSelect";
+import RatingInput from "../components/RatingInput";
 
 export default function AnimeDetailsPage() {
   const { id } = useParams();
@@ -19,6 +27,12 @@ export default function AnimeDetailsPage() {
   const [comments, setComments] = useState([]);
   const [commentsLoading, setCommentsLoading] = useState(true);
   const [commentsError, setCommentsError] = useState("");
+
+  const [watchEntry, setWatchEntry] = useState(null);
+  const [watchLoading, setWatchLoading] = useState(false);
+  const [watchError, setWatchError] = useState("");
+  const [watchStatus, setWatchStatus] = useState("WATCH_LATER");
+  const [personalRating, setPersonalRating] = useState("");
 
   async function loadComments() {
     setCommentsLoading(true);
@@ -34,21 +48,54 @@ export default function AnimeDetailsPage() {
     }
   }
 
-  useEffect(() => {
-    async function loadAnimeDetails() {
-      setLoading(true);
-      setError("");
-
-      try {
-        const result = await getAnimeById(id);
-        setAnime(result);
-      } catch (err) {
-        setError(err.message || "Failed to load anime details");
-      } finally {
-        setLoading(false);
-      }
+  async function loadWatchEntry() {
+    if (!auth.user) {
+      setWatchEntry(null);
+      setWatchStatus("WATCH_LATER");
+      setPersonalRating("");
+      return;
     }
 
+    setWatchLoading(true);
+    setWatchError("");
+
+    try {
+      const result = await getWatchlistEntry(id);
+      setWatchEntry(result);
+      setWatchStatus(result.status || "WATCH_LATER");
+      setPersonalRating(
+        result.personalRating === null || result.personalRating === undefined
+          ? ""
+          : String(result.personalRating)
+      );
+    } catch (err) {
+      if (err.message && err.message.toLowerCase().includes("404")) {
+        setWatchEntry(null);
+        setWatchStatus("WATCH_LATER");
+        setPersonalRating("");
+      } else {
+        setWatchError(err.message || "Failed to load watchlist entry.");
+      }
+    } finally {
+      setWatchLoading(false);
+    }
+  }
+
+  async function loadAnimeDetails() {
+    setLoading(true);
+    setError("");
+
+    try {
+      const result = await getAnimeById(id);
+      setAnime(result);
+    } catch (err) {
+      setError(err.message || "Failed to load anime details");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
     loadAnimeDetails();
   }, [id]);
 
@@ -56,9 +103,93 @@ export default function AnimeDetailsPage() {
     loadComments();
   }, [id]);
 
+  useEffect(() => {
+    loadWatchEntry();
+  }, [id, auth.user]);
+
   async function handleCreateComment(content) {
     await createComment(id, content);
     await loadComments();
+  }
+
+  async function handleAddToWatchlist() {
+    setWatchLoading(true);
+    setWatchError("");
+
+    try {
+      const parsedRating =
+        String(personalRating).trim() === ""
+          ? null
+          : Number(personalRating);
+
+      if (
+        parsedRating !== null &&
+        (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 10)
+      ) {
+        throw new Error("Personal rating must be a whole number from 1 to 10.");
+      }
+
+      await addToWatchlist({
+        animeId: Number(id),
+        status: watchStatus,
+        personalRating: parsedRating,
+      });
+
+      await loadWatchEntry();
+      await loadAnimeDetails();
+    } catch (err) {
+      setWatchError(err.message || "Failed to add to watchlist.");
+    } finally {
+      setWatchLoading(false);
+    }
+  }
+
+  async function handleUpdateWatchlist() {
+    setWatchLoading(true);
+    setWatchError("");
+
+    try {
+      const parsedRating =
+        String(personalRating).trim() === ""
+          ? null
+          : Number(personalRating);
+
+      if (
+        parsedRating !== null &&
+        (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 10)
+      ) {
+        throw new Error("Personal rating must be a whole number from 1 to 10.");
+      }
+
+      await updateWatchlistEntry(id, {
+        status: watchStatus,
+        personalRating: parsedRating,
+      });
+
+      await loadWatchEntry();
+      await loadAnimeDetails();
+    } catch (err) {
+      setWatchError(err.message || "Failed to update watchlist.");
+    } finally {
+      setWatchLoading(false);
+    }
+  }
+
+  async function handleRemoveFromWatchlist() {
+    setWatchLoading(true);
+    setWatchError("");
+
+    try {
+      await removeFromWatchlist(id);
+      setWatchEntry(null);
+      setWatchStatus("WATCH_LATER");
+      setPersonalRating("");
+      await loadAnimeDetails();
+    } catch (err) {
+      setWatchError(err.message || "Failed to remove from watchlist.");
+    } finally {
+      setWatchLoading(false);
+    }
   }
 
   if (loading) {
@@ -189,8 +320,84 @@ export default function AnimeDetailsPage() {
                 paddingTop: "20px",
               }}
             >
-              <h2 style={{ marginTop: 0 }}>Coming in next steps</h2>
-              <p style={{ margin: 0 }}>Watch list actions go here.</p>
+              <h2 style={{ marginTop: 0, marginBottom: "16px" }}>My watchlist</h2>
+
+              {!auth.user ? (
+                <p style={{ margin: 0, color: "#555" }}>
+                  Log in to add this anime to your watchlist.
+                </p>
+              ) : (
+                <>
+                  {watchError && (
+                    <p style={{ color: "crimson", marginBottom: "12px" }}>
+                      Error: {watchError}
+                    </p>
+                  )}
+
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "12px",
+                      flexWrap: "wrap",
+                      alignItems: "end",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    <div>
+                      <label
+                        style={{
+                          display: "block",
+                          marginBottom: "6px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Status
+                      </label>
+                      <WatchStatusSelect
+                        value={watchStatus}
+                        disabled={watchLoading}
+                        onChange={setWatchStatus}
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        style={{
+                          display: "block",
+                          marginBottom: "6px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Personal rating
+                      </label>
+                      <RatingInput
+                        value={personalRating}
+                        disabled={watchLoading}
+                        onChange={setPersonalRating}
+                      />
+                    </div>
+                  </div>
+
+                  {watchEntry ? (
+                    <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                      <button onClick={handleUpdateWatchlist} disabled={watchLoading}>
+                        {watchLoading ? "Saving..." : "Update watchlist"}
+                      </button>
+
+                      <button
+                        onClick={handleRemoveFromWatchlist}
+                        disabled={watchLoading}
+                      >
+                        {watchLoading ? "Working..." : "Remove from watchlist"}
+                      </button>
+                    </div>
+                  ) : (
+                    <button onClick={handleAddToWatchlist} disabled={watchLoading}>
+                      {watchLoading ? "Adding..." : "Add to watchlist"}
+                    </button>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
