@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useRecoilValue } from "recoil";
 import { getAnimeById } from "../api/animeApi";
+import { createComment, getCommentsByAnimeId } from "../api/commentApi";
+import CommentList from "../components/CommentList";
+import CommentForm from "../components/CommentForm";
+import { authState } from "../state/authState";
 
 export default function AnimeDetailsPage() {
   const { id } = useParams();
@@ -8,6 +13,26 @@ export default function AnimeDetailsPage() {
   const [anime, setAnime] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const auth = useRecoilValue(authState);
+
+  const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(true);
+  const [commentsError, setCommentsError] = useState("");
+
+  async function loadComments() {
+    setCommentsLoading(true);
+    setCommentsError("");
+
+    try {
+      const result = await getCommentsByAnimeId(id);
+      setComments(result);
+    } catch (err) {
+      setCommentsError(err.message || "Failed to load comments");
+    } finally {
+      setCommentsLoading(false);
+    }
+  }
 
   useEffect(() => {
     async function loadAnimeDetails() {
@@ -26,6 +51,15 @@ export default function AnimeDetailsPage() {
 
     loadAnimeDetails();
   }, [id]);
+
+  useEffect(() => {
+    loadComments();
+  }, [id]);
+
+  async function handleCreateComment(content) {
+    await createComment(id, content);
+    await loadComments();
+  }
 
   if (loading) {
     return <p>Loading anime details...</p>;
@@ -126,9 +160,38 @@ export default function AnimeDetailsPage() {
               paddingTop: "20px",
             }}
           >
-            <h2 style={{ marginTop: 0 }}>Coming in next steps</h2>
-            <p style={{ marginBottom: "8px" }}>Comments section goes here.</p>
-            <p style={{ margin: 0 }}>Watch list actions go here.</p>
+            <h2 style={{ marginTop: 0, marginBottom: "16px" }}>Comments</h2>
+
+            {auth.user ? (
+              <div style={{ marginBottom: "20px" }}>
+                <CommentForm onSubmit={handleCreateComment} />
+              </div>
+            ) : (
+              <p style={{ marginBottom: "20px", color: "#555" }}>
+                Log in to comment.
+              </p>
+            )}
+
+            {commentsLoading && <p>Loading comments...</p>}
+
+            {commentsError && (
+              <p style={{ color: "crimson" }}>Error: {commentsError}</p>
+            )}
+
+            {!commentsLoading && !commentsError && (
+              <CommentList comments={comments} />
+            )}
+
+            <div
+              style={{
+                marginTop: "24px",
+                borderTop: "1px solid #eee",
+                paddingTop: "20px",
+              }}
+            >
+              <h2 style={{ marginTop: 0 }}>Coming in next steps</h2>
+              <p style={{ margin: 0 }}>Watch list actions go here.</p>
+            </div>
           </div>
         </div>
       </div>
