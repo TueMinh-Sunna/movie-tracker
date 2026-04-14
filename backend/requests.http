@@ -104,3 +104,43 @@ DELETE http://localhost:8080/api/watchlist/2
 
 ### 7. Verify the global rating really changed
 GET http://localhost:8080/api/anime/2
+
+############################################################################################
+### Error Handling
+### 1. Validation error on register
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "",
+  "email": "wrong-email",
+  "password": "123"
+}
+
+### 2. Validation error on watch list rating
+POST http://localhost:8080/api/watchlist
+Content-Type: application/json
+Cookie: JSESSIONID=your-session-id
+
+{
+  "animeId": 1,
+  "status": "COMPLETED",
+  "personalRating": 15
+}
+
+### 3. Anime not found
+GET http://localhost:8080/api/anime/99999
+
+### 4. Unauthorized watch list access
+GET http://localhost:8080/api/watchlist
+
+### 5. Duplicate register
+
+### 6. Invalid login
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "demo",
+  "password": "wrongpassword"
+}

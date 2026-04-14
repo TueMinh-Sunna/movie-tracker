@@ -5,7 +5,7 @@ import com.example.animelist.dto.WatchListRequest;
 import com.example.animelist.service.WatchListService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
-
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -33,7 +33,7 @@ public class WatchListController {
 
     @PostMapping
     public WatchListEntryResponse addToWatchList(
-            @RequestBody WatchListRequest request,
+            @Valid @RequestBody WatchListRequest request,
             HttpSession session
     ) {
         return watchListService.addToWatchList(request, session);
@@ -42,7 +42,7 @@ public class WatchListController {
     @PutMapping("/{animeId}")
     public WatchListEntryResponse updateWatchListEntry(
             @PathVariable Long animeId,
-            @RequestBody WatchListRequest request,
+            @Valid @RequestBody WatchListRequest request,
             HttpSession session
     ) {
         return watchListService.updateWatchListEntry(animeId, request, session);

@@ -7,7 +7,8 @@ import com.example.animelist.entity.Genre;
 import com.example.animelist.repository.AnimeRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.server.ResponseStatusException;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import java.util.List;
 
 @Service
@@ -48,7 +49,7 @@ public class AnimeService {
 
     public AnimeDetailResponse getAnimeById(Long id) {
         Anime anime = animeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Anime not found with id: " + id));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Anime not found"));
 
         return toDetailResponse(anime);
     }

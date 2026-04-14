@@ -5,7 +5,8 @@ import com.example.animelist.entity.WatchListEntry;
 import com.example.animelist.repository.AnimeRepository;
 import com.example.animelist.repository.WatchListEntryRepository;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.server.ResponseStatusException;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -26,7 +27,7 @@ public class AnimeRatingService {
 
     public void recalculateAverageRating(Long animeId) {
         Anime anime = animeRepository.findById(animeId)
-                .orElseThrow(() -> new RuntimeException("Anime not found with id: " + animeId));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Anime not found"));
 
         List<WatchListEntry> entries = watchListEntryRepository.findByAnimeId(animeId);
 
