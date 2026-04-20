@@ -28,10 +28,11 @@
   --font-family-heading: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
 
-  --font-size-display: clamp(2rem, 1.4rem + 2vw, 3.25rem);
-  --font-size-h1: clamp(1.75rem, 1.35rem + 1vw, 2.5rem);
-  --font-size-h2: clamp(1.375rem, 1.15rem + 0.6vw, 1.875rem);
-  --font-size-h3: 1.125rem;
+  --font-size-display: clamp(2.25rem, 1.8rem + 2vw, 3.5rem);
+  --font-size-h1: clamp(1.875rem, 1.5rem + 1vw, 2.75rem);
+  --font-size-h2: clamp(1.5rem, 1.2rem + 0.7vw, 2rem);
+  --font-size-h3: clamp(1.125rem, 1.05rem + 0.3vw, 1.375rem);
+  --font-size-body-lg: 1.125rem;
   --font-size-body: 1rem;
   --font-size-small: 0.875rem;
   --font-size-label: 0.875rem;
@@ -41,7 +42,8 @@
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  --line-height-tight: 1.2;
+  --line-height-tight: 1.15;
+  --line-height-heading: 1.2;
   --line-height-body: 1.6;
 
   /* Spacing */
@@ -106,6 +108,47 @@
   line-height: var(--line-height-body);
 }
 
+:global(h1),
+:global(h2),
+:global(h3),
+:global(h4),
+:global(h5),
+:global(h6) {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-heading);
+  letter-spacing: -0.02em;
+}
+
+:global(h1) {
+  font-size: var(--font-size-h1);
+}
+
+:global(h2) {
+  font-size: var(--font-size-h2);
+}
+
+:global(h3) {
+  font-size: var(--font-size-h3);
+}
+
+:global(p) {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+:global(label) {
+  color: var(--color-text);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+}
+
+:global(strong) {
+  color: var(--color-text);
+}
+
 :global(button),
 :global(input),
 :global(select),
@@ -124,4 +167,9 @@
 
 :global(#root) {
   min-height: 100vh;
+}
+
+:global(::selection) {
+  background: rgba(79, 70, 229, 0.18);
+  color: var(--color-text);
 }
