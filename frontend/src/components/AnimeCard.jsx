@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 
 export default function AnimeCard({ anime }) {
+  const hasRating = anime.averageRating > 0;
+
   return (
     <Link
       to={`/anime/${anime.id}`}
@@ -32,10 +34,8 @@ export default function AnimeCard({ anime }) {
 
         <h3 style={{ margin: "0 0 8px 0", fontSize: "18px" }}>{anime.title}</h3>
 
-        <p style={{ margin: "0", color: "#555" }}>
-          Rating: {anime.averageRating && anime.averageRating > 0
-            ? anime.averageRating
-            : "No ratings yet"}
+        <p style={{ margin: 0, color: "#555" }}>
+          Rating: {hasRating ? anime.averageRating : "No ratings yet"}
         </p>
       </div>
     </Link>

@@ -1,6 +1,11 @@
 import { apiFetch } from "./client";
+import {
+  normalizeAnime,
+  normalizeAnimeList,
+  normalizeGenreList,
+} from "../mappers/animeMappers";
 
-export function getAnimeList({ search = "", genre = "", sort = "" } = {}) {
+export async function getAnimeList({ search = "", genre = "", sort = "" } = {}) {
   const params = new URLSearchParams();
 
   if (search.trim()) {
@@ -18,13 +23,16 @@ export function getAnimeList({ search = "", genre = "", sort = "" } = {}) {
   const queryString = params.toString();
   const path = queryString ? `/api/anime?${queryString}` : "/api/anime";
 
-  return apiFetch(path);
+  const data = await apiFetch(path);
+  return normalizeAnimeList(data);
 }
 
-export function getAnimeById(id) {
-  return apiFetch(`/api/anime/${id}`);
+export async function getAnimeById(id) {
+  const data = await apiFetch(`/api/anime/${id}`);
+  return normalizeAnime(data);
 }
 
-export function getGenres() {
-  return apiFetch("/api/genres");
+export async function getGenres() {
+  const data = await apiFetch("/api/genres");
+  return normalizeGenreList(data);
 }

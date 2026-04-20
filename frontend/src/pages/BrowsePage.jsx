@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { getAnimeList, getGenres } from "../api/animeApi";
+import AnimeCard from "../components/AnimeCard";
+import SearchBar from "../components/SearchBar";
+import GenreFilter from "../components/GenreFilter";
+import SortSelect from "../components/SortSelect";
 
 export default function BrowsePage() {
   const [animeList, setAnimeList] = useState([]);
@@ -60,37 +63,13 @@ export default function BrowsePage() {
           flexWrap: "wrap",
         }}
       >
-        <input
-          type="text"
-          placeholder="Search by title"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ padding: "8px", minWidth: "220px" }}
-        />
-
-        <select
+        <SearchBar value={search} onChange={setSearch} />
+        <GenreFilter
+          genres={genres}
           value={selectedGenre}
-          onChange={(e) => setSelectedGenre(e.target.value)}
-          style={{ padding: "8px" }}
-        >
-          <option value="">All genres</option>
-          {genres.map((genre) => (
-            <option key={genre} value={genre}>
-              {genre}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value)}
-          style={{ padding: "8px" }}
-        >
-          <option value="rating_desc">Rating: High to Low</option>
-          <option value="rating_asc">Rating: Low to High</option>
-          <option value="title_asc">Title: A to Z</option>
-          <option value="title_desc">Title: Z to A</option>
-        </select>
+          onChange={setSelectedGenre}
+        />
+        <SortSelect value={sort} onChange={setSort} />
       </div>
 
       {loading && <p>Loading anime...</p>}
@@ -109,33 +88,7 @@ export default function BrowsePage() {
           }}
         >
           {animeList.map((anime) => (
-            <Link
-              key={anime.id}
-              to={`/anime/${anime.id}`}
-              style={{
-                textDecoration: "none",
-                color: "inherit",
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                padding: "12px",
-              }}
-            >
-              <img
-                src={anime.imageUrl}
-                alt={anime.title}
-                style={{
-                  width: "100%",
-                  height: "280px",
-                  objectFit: "cover",
-                  borderRadius: "6px",
-                  marginBottom: "10px",
-                }}
-              />
-
-              <h3 style={{ margin: "0 0 8px 0" }}>{anime.title}</h3>
-              <p style={{ margin: 0 }}>
-                Average rating: {Number(anime.averageRating) === 0 ? "No ratings yet" : anime.averageRating}
-              </p>            </Link>
+            <AnimeCard key={anime.id} anime={anime} />
           ))}
         </div>
       )}

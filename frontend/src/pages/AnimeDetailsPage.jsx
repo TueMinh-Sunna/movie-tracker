@@ -272,10 +272,10 @@ export default function AnimeDetailsPage() {
                 marginTop: "8px",
               }}
             >
-              {anime.genres && anime.genres.length > 0 ? (
+              {anime.genres.length > 0 ? (
                 anime.genres.map((genre) => (
                   <span
-                    key={genre.id ?? genre.name ?? genre}
+                    key={genre.id}
                     style={{
                       padding: "6px 10px",
                       border: "1px solid #ccc",
@@ -283,7 +283,7 @@ export default function AnimeDetailsPage() {
                       fontSize: "14px",
                     }}
                   >
-                    {genre.name ?? genre}
+                    {genre.name}
                   </span>
                 ))
               ) : (

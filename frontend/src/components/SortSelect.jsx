@@ -9,9 +9,10 @@ export default function SortSelect({ value, onChange }) {
         borderRadius: "6px",
       }}
     >
-      <option value="">Default sort</option>
       <option value="rating_desc">Rating: High to Low</option>
       <option value="rating_asc">Rating: Low to High</option>
+      <option value="title_asc">Title: A to Z</option>
+      <option value="title_desc">Title: Z to A</option>
     </select>
   );
 }
