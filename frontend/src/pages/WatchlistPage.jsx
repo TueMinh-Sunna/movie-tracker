@@ -152,7 +152,10 @@ export default function WatchlistPage() {
       )}
 
       {filteredEntries.length === 0 ? (
-        <EmptyState message="Your watchlist is empty for this filter." />
+        <EmptyState
+          title="No watchlist entries"
+          message="Your watchlist is empty for this filter."
+        />
       ) : (
         <div style={{ display: "grid", gap: "16px" }}>
           {filteredEntries.map((entry) => {

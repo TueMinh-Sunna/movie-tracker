@@ -74,7 +74,10 @@ export default function HomePage() {
         {error && <p style={{ color: "crimson" }}>Error: {error}</p>}
 
         {!loading && !error && topAnime.length === 0 && (
-          <EmptyState message="No anime available right now." />
+          <EmptyState
+            title="No anime yet"
+            message="No anime available right now."
+          />
         )}
 
         {!loading && !error && topAnime.length > 0 && (
