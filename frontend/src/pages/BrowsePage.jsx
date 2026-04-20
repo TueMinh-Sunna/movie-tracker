@@ -1,3 +1,4 @@
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useEffect, useState } from "react";
 import { getAnimeList, getGenres } from "../api/animeApi";
 import AnimeCard from "../components/AnimeCard";
@@ -6,6 +7,8 @@ import GenreFilter from "../components/GenreFilter";
 import SortSelect from "../components/SortSelect";
 
 export default function BrowsePage() {
+  useDocumentTitle("Browse");
+
   const [animeList, setAnimeList] = useState([]);
   const [genres, setGenres] = useState([]);
 

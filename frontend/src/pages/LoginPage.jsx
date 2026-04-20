@@ -1,3 +1,4 @@
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useState } from "react";
 import { useSetRecoilState } from "recoil";
 import { Link, useNavigate } from "react-router-dom";
@@ -6,6 +7,8 @@ import { authState } from "../state/authState";
 import { validateLoginForm } from "../utils/validation";
 
 export default function LoginPage() {
+  useDocumentTitle("Login");
+  
   const navigate = useNavigate();
   const setAuth = useSetRecoilState(authState);
 

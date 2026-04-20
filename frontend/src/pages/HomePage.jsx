@@ -1,3 +1,4 @@
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useRecoilValue } from "recoil";
@@ -8,6 +9,8 @@ import EmptyState from "../components/EmptyState";
 import { authState } from "../state/authState";
 
 export default function HomePage() {
+  useDocumentTitle("Home");
+  
   const auth = useRecoilValue(authState);
 
   const [topAnime, setTopAnime] = useState([]);

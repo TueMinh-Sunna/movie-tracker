@@ -1,0 +1,198 @@
+.root {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  margin-bottom: var(--space-6);
+  padding: var(--space-4) 0;
+  background: rgba(244, 247, 251, 0.9);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.inner {
+  width: min(100%, var(--content-width-lg));
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.brand:hover {
+  background: var(--color-surface-subtle);
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--control-height);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.navLink:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.navLinkActive {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.userPill {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-height);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  box-shadow: var(--shadow-sm);
+}
+
+.authButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--control-height);
+  padding: 0 var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.authButtonSecondary {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.authButtonSecondary:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+}
+
+.authButtonPrimary {
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+  box-shadow: var(--shadow-sm);
+}
+
+.authButtonPrimary:hover {
+  background: var(--color-accent-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.logoutButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--control-height);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.logoutButton:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.logoutButton:disabled {
+  background: var(--color-disabled-bg);
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+@media (max-width: 720px) {
+  .inner {
+    align-items: stretch;
+  }
+
+  .left,
+  .right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .navLinks {
+    width: 100%;
+  }
+}

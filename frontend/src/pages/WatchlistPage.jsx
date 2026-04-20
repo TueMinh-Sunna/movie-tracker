@@ -1,3 +1,4 @@
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -11,6 +12,8 @@ import LoadingState from "../components/LoadingState";
 import EmptyState from "../components/EmptyState";
 
 export default function WatchlistPage() {
+  useDocumentTitle("My Watchlist");
+  
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

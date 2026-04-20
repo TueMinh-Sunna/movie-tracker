@@ -1,3 +1,4 @@
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
@@ -16,6 +17,8 @@ import WatchStatusSelect from "../components/WatchStatusSelect";
 import RatingInput from "../components/RatingInput";
 
 export default function AnimeDetailsPage() {
+  useDocumentTitle(anime ? anime.title : "Anime Details");
+  
   const { id } = useParams();
 
   const [anime, setAnime] = useState(null);

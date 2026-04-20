@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { BrowserRouter, Link, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
@@ -7,32 +6,18 @@ import SignupPage from "./pages/SignupPage";
 import BrowsePage from "./pages/BrowsePage";
 import AnimeDetailsPage from "./pages/AnimeDetailsPage";
 import WatchlistPage from "./pages/WatchlistPage";
+import NotFoundPage from "./pages/NotFoundPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { authState } from "./state/authState";
-import { getCurrentUser, logoutUser } from "./api/authApi";
+import { logoutUser } from "./api/authApi";
+import AppShell from "./app/AppShell";
+import useAuthBootstrap from "./hooks/useAuthBootstrap";
 
-function AppLayout() {
+function AppRoutes() {
   const [auth, setAuth] = useRecoilState(authState);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    async function loadCurrentUser() {
-      try {
-        const user = await getCurrentUser();
-        setAuth({
-          user,
-          isLoading: false,
-        });
-      } catch {
-        setAuth({
-          user: null,
-          isLoading: false,
-        });
-      }
-    }
-
-    loadCurrentUser();
-  }, [setAuth]);
+  useAuthBootstrap(setAuth);
 
   async function handleLogout() {
     try {
@@ -50,26 +35,8 @@ function AppLayout() {
   }
 
   return (
-    <div style={{ padding: "16px" }}>
-      <nav style={{ marginBottom: "20px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
-        <Link to="/">Home</Link>
-        <Link to="/browse">Browse</Link>
-
-        {auth.user ? (
-          <>
-            <Link to="/watchlist">Watchlist</Link>
-            <span>Hello, {auth.user.username}</span>
-            <button onClick={handleLogout}>Logout</button>
-          </>
-        ) : (
-          <>
-            <Link to="/login">Login</Link>
-            <Link to="/signup">Signup</Link>
-          </>
-        )}
-      </nav>
-
-      <Routes>
+    <Routes>
+      <Route element={<AppShell user={auth.user} onLogout={handleLogout} />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
@@ -83,15 +50,16 @@ function AppLayout() {
             </ProtectedRoute>
           }
         />
-      </Routes>
-    </div>
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
   );
 }
 
 export default function App() {
   return (
     <BrowserRouter>
-      <AppLayout />
+      <AppRoutes />
     </BrowserRouter>
   );
 }
