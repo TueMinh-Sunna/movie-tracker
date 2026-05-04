@@ -3,6 +3,9 @@
   --color-bg: #f4f7fb;
   --color-bg-accent: linear-gradient(180deg, #f8faff 0%, #f4f7fb 100%);
 
+  --color-rating: #f5c518;
+  --color-rating-soft: rgba(245, 197, 24, 0.16);
+
   --color-surface: #ffffff;
   --color-surface-muted: #f8fafc;
   --color-surface-subtle: #f1f5f9;
@@ -124,7 +127,12 @@ body {
   line-height: var(--line-height-body);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0;
   color: var(--color-text);
   font-family: var(--font-family-heading);
@@ -133,9 +141,17 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
-h1 { font-size: var(--font-size-h1); }
-h2 { font-size: var(--font-size-h2); }
-h3 { font-size: var(--font-size-h3); }
+h1 {
+  font-size: var(--font-size-h1);
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+}
+
+h3 {
+  font-size: var(--font-size-h3);
+}
 
 p {
   margin: 0;
@@ -152,7 +168,10 @@ strong {
   color: var(--color-text);
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font: inherit;
 }
 
@@ -163,7 +182,9 @@ button {
   color: inherit;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   color: var(--color-text);
 }
 

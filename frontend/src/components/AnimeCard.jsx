@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import RatingBadge from "./RatingBadge";
 import styles from "./AnimeCard.module.css";
 
 export default function AnimeCard({
@@ -6,8 +7,6 @@ export default function AnimeCard({
   actions = null,
   subtitle = null,
 }) {
-  const hasRating = anime.averageRating > 0;
-
   return (
     <article className={styles.root}>
       <Link to={`/anime/${anime.id}`} className={styles.mediaLink}>
@@ -17,29 +16,29 @@ export default function AnimeCard({
             alt={anime.title}
             className={styles.poster}
           />
+
+          <div className={styles.posterShade} />
         </div>
       </Link>
 
-      <Link to={`/anime/${anime.id}`} className={styles.contentLink}>
-        <div className={styles.content}>
+      <div className={styles.body}>
+        <Link to={`/anime/${anime.id}`} className={styles.titleLink}>
           <h3 className={styles.title}>{anime.title}</h3>
+        </Link>
 
-          <div className={styles.ratingRow}>
-            <span className={styles.ratingLabel}>Global rating</span>
-            <span
-              className={`${styles.ratingValue} ${
-                !hasRating ? styles.ratingValueEmpty : ""
-              }`}
-            >
-              {hasRating ? anime.averageRating.toFixed(1) : "No ratings yet"}
-            </span>
-          </div>
-
-          {subtitle ? <div className={styles.subtitle}>{subtitle}</div> : null}
+        <div className={styles.metaRow}>
+          <RatingBadge
+            label="Global"
+            value={anime.averageRating}
+            compact
+            emptyText="No rating"
+          />
         </div>
-      </Link>
 
-      {actions ? <div className={styles.actions}>{actions}</div> : null}
+        {subtitle ? <div className={styles.subtitle}>{subtitle}</div> : null}
+
+        {actions ? <div className={styles.actions}>{actions}</div> : null}
+      </div>
     </article>
   );
 }

@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import styles from "./Navbar.module.css";
 
 function getNavLinkClassName({ isActive }) {
@@ -6,6 +6,8 @@ function getNavLinkClassName({ isActive }) {
 }
 
 export default function Navbar({ user, onLogout }) {
+  const location = useLocation();
+
   return (
     <header className={styles.root}>
       <div className={styles.inner}>
@@ -47,6 +49,7 @@ export default function Navbar({ user, onLogout }) {
             <>
               <NavLink
                 to="/login"
+                state={{ from: location }}
                 className={`${styles.authButton} ${styles.authButtonSecondary}`}
               >
                 Login

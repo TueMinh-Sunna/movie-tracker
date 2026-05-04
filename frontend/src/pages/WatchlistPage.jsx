@@ -6,11 +6,18 @@ import {
   updateWatchlistEntry,
   removeFromWatchlist,
 } from "../api/watchlistApi";
-import WatchStatusSelect from "../components/WatchStatusSelect";
-import RatingInput from "../components/RatingInput";
 import EmptyState from "../components/EmptyState";
+import RatingBadge from "../components/RatingBadge";
+import RatingPicker from "../components/RatingPicker";
 import styles from "./WatchlistPage.module.css";
 import { WatchlistSkeleton } from "../components/Skeleton";
+import { getAnimeById } from "../api/animeApi";
+
+const STATUS_TABS = [
+  { value: "ALL", label: "All" },
+  { value: "WATCH_LATER", label: "Watch later" },
+  { value: "COMPLETED", label: "Completed" },
+];
 
 export default function WatchlistPage() {
   useDocumentTitle("My Watchlist");
@@ -18,7 +25,9 @@ export default function WatchlistPage() {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState("recent_desc");
   const [savingAnimeId, setSavingAnimeId] = useState(null);
 
   async function loadWatchlist() {
@@ -27,7 +36,23 @@ export default function WatchlistPage() {
 
     try {
       const result = await getWatchlist();
-      setEntries(result);
+
+      const entriesWithFreshRatings = await Promise.all(
+        result.map(async (entry) => {
+          try {
+            const freshAnime = await getAnimeById(entry.animeId);
+
+            return {
+              ...entry,
+              averageRating: freshAnime.averageRating,
+            };
+          } catch {
+            return entry;
+          }
+        })
+      );
+
+      setEntries(entriesWithFreshRatings);
     } catch (err) {
       setError(err.message || "Failed to load watchlist.");
     } finally {
@@ -39,14 +64,6 @@ export default function WatchlistPage() {
     loadWatchlist();
   }, []);
 
-  const filteredEntries = useMemo(() => {
-    if (statusFilter === "ALL") {
-      return entries;
-    }
-
-    return entries.filter((entry) => entry.status === statusFilter);
-  }, [entries, statusFilter]);
-
   const totalCount = entries.length;
   const watchLaterCount = entries.filter(
     (entry) => entry.status === "WATCH_LATER"
@@ -55,8 +72,43 @@ export default function WatchlistPage() {
     (entry) => entry.status === "COMPLETED"
   ).length;
 
+  const filteredAndSortedEntries = useMemo(() => {
+    const filtered =
+      statusFilter === "ALL"
+        ? entries
+        : entries.filter((entry) => entry.status === statusFilter);
+
+    return [...filtered].sort((a, b) => {
+      if (sortBy === "title_asc") {
+        return String(a.title).localeCompare(String(b.title));
+      }
+
+      if (sortBy === "title_desc") {
+        return String(b.title).localeCompare(String(a.title));
+      }
+
+      if (sortBy === "personal_desc") {
+        return Number(b.personalRating ?? 0) - Number(a.personalRating ?? 0);
+      }
+
+      if (sortBy === "personal_asc") {
+        return Number(a.personalRating ?? 0) - Number(b.personalRating ?? 0);
+      }
+
+      if (sortBy === "global_desc") {
+        return Number(b.averageRating ?? 0) - Number(a.averageRating ?? 0);
+      }
+
+      const aTime = a.updatedAt ? new Date(a.updatedAt).getTime() : Number(a.id ?? 0);
+      const bTime = b.updatedAt ? new Date(b.updatedAt).getTime() : Number(b.id ?? 0);
+
+      return bTime - aTime;
+    });
+  }, [entries, statusFilter, sortBy]);
+
   async function handleStatusChange(animeId, nextStatus, currentPersonalRating) {
     setSavingAnimeId(animeId);
+    setError("");
 
     try {
       await updateWatchlistEntry(animeId, {
@@ -73,6 +125,14 @@ export default function WatchlistPage() {
     } finally {
       setSavingAnimeId(null);
     }
+  }
+
+  async function handleMarkCompleted(entry) {
+    await handleStatusChange(
+      entry.animeId,
+      "COMPLETED",
+      entry.personalRating
+    );
   }
 
   async function handleRatingChange(animeId, status, nextRatingValue) {
@@ -111,12 +171,20 @@ export default function WatchlistPage() {
     }
   }
 
-  async function handleRemove(animeId) {
-    setSavingAnimeId(animeId);
+  async function handleRemove(entry) {
+    const confirmed = window.confirm(
+      `Remove "${entry.title}" from Watch later?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setSavingAnimeId(entry.animeId);
     setError("");
 
     try {
-      await removeFromWatchlist(animeId);
+      await removeFromWatchlist(entry.animeId);
       await loadWatchlist();
     } catch (err) {
       setError(err.message || "Failed to remove anime from watchlist.");
@@ -131,180 +199,192 @@ export default function WatchlistPage() {
 
   return (
     <div className={styles.root}>
-      <section className={styles.header}>
-        <h1 className={styles.title}>My Watchlist</h1>
-        <p className={styles.description}>
-          Track what you still want to watch, what you have completed, and the
-          personal ratings you have given.
-        </p>
-      </section>
-
-      <section className={styles.summaryGrid}>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Total entries</span>
-          <span className={styles.summaryValue}>{totalCount}</span>
+      <section className={styles.playlistHero}>
+        <div className={styles.heroCover} aria-hidden="true">
+          <span>▶</span>
         </div>
 
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Watch later</span>
-          <span className={styles.summaryValue}>{watchLaterCount}</span>
-        </div>
+        <div className={styles.heroContent}>
+          <h1 className={styles.title}>Watchlist</h1>
 
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Completed</span>
-          <span className={styles.summaryValue}>{completedCount}</span>
-        </div>
-      </section>
+          <p className={styles.description}>
+            Your saved anime, personal ratings, and completion progress in one
+            playlist-style view.
+          </p>
 
-      <section className={styles.filtersCard}>
-        <div className={styles.filtersHeader}>
-          <div>
-            <h2 className={styles.filtersTitle}>Filter entries</h2>
-            <p className={styles.filtersDescription}>
-              Switch between all items, planned shows, and completed ones.
-            </p>
+          <div className={styles.heroStats}>
+            <span>{totalCount} saved</span>
+            <span>{watchLaterCount} queued</span>
+            <span>{completedCount} completed</span>
           </div>
 
-          <span className={styles.resultsText}>
-            {filteredEntries.length} item{filteredEntries.length === 1 ? "" : "s"}
-          </span>
+          <div className={styles.heroActions}>
+            <Link to="/browse" className={styles.primaryLink}>
+              Browse anime
+            </Link>
+          </div>
         </div>
+      </section>
 
+      <section className={styles.toolbar}>
         <div className={styles.tabRow}>
-          <button
-            type="button"
-            onClick={() => setStatusFilter("ALL")}
-            className={`${styles.tab} ${statusFilter === "ALL" ? styles.tabActive : ""
-              }`}
-          >
-            All
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setStatusFilter("WATCH_LATER")}
-            className={`${styles.tab} ${statusFilter === "WATCH_LATER" ? styles.tabActive : ""
-              }`}
-          >
-            Watch later
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setStatusFilter("COMPLETED")}
-            className={`${styles.tab} ${statusFilter === "COMPLETED" ? styles.tabActive : ""
-              }`}
-          >
-            Completed
-          </button>
+          {STATUS_TABS.map((tab) => (
+            <button
+              key={tab.value}
+              type="button"
+              onClick={() => setStatusFilter(tab.value)}
+              className={styles.tab}
+              data-active={statusFilter === tab.value ? "true" : "false"}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
+
+        <label className={styles.sortLabel}>
+          Sort current view
+          <select
+            value={sortBy}
+            onChange={(event) => setSortBy(event.target.value)}
+            className={styles.sortSelect}
+          >
+            <option value="recent_desc">Recently updated</option>
+            <option value="title_asc">Title: A to Z</option>
+            <option value="title_desc">Title: Z to A</option>
+            <option value="global_desc">Global rating: High to Low</option>
+            <option value="personal_desc">Your rating: High to Low</option>
+            <option value="personal_asc">Your rating: Low to High</option>
+          </select>
+        </label>
       </section>
 
       {error ? <div className={styles.errorBox}>Error: {error}</div> : null}
 
-      {filteredEntries.length === 0 ? (
-        <EmptyState
-          title="No watchlist entries"
-          message="Your watchlist is empty for this filter."
-        />
-      ) : (
-        <section className={styles.list}>
-          {filteredEntries.map((entry) => {
-            const anime = {
-              id: entry.animeId,
-              title: entry.title,
-              imageUrl: entry.imageUrl,
-              averageRating: entry.averageRating,
-            };
+      {filteredAndSortedEntries.length === 0 ? (
+        <div className={styles.emptyWrap}>
+          <EmptyState
+            title="Nothing in this view"
+            message="This playlist filter has no anime yet."
+          />
 
-            const isSaving = savingAnimeId === anime.id;
-            const hasGlobalRating = Number(anime.averageRating) > 0;
-            return (
-              <article
-                key={entry.id ?? anime.id}
-                className={styles.entryCard}
+          <div className={styles.emptyActions}>
+            <Link to="/browse" className={styles.primaryLink}>
+              Find anime
+            </Link>
+
+            {statusFilter !== "ALL" ? (
+              <button
+                type="button"
+                onClick={() => setStatusFilter("ALL")}
+                className={styles.secondaryButton}
               >
-                <Link
-                  to={`/anime/${anime.id}`}
-                  className={styles.posterLink}
-                >
-                  <div className={styles.posterWrap}>
-                    <img
-                      src={anime.imageUrl}
-                      alt={anime.title}
-                      className={styles.poster}
-                    />
-                  </div>
+                Show all saved anime
+              </button>
+            ) : null}
+          </div>
+        </div>
+      ) : (
+        <section className={styles.playlistList}>
+          {filteredAndSortedEntries.map((entry, index) => {
+            const animeId = Number(entry.animeId);
+            const isSaving = savingAnimeId === animeId;
+            const isCompleted = entry.status === "COMPLETED";
+
+            return (
+              <article key={entry.id ?? animeId} className={styles.row}>
+                <span className={styles.rowIndex}>{index + 1}</span>
+
+                <Link to={`/anime/${animeId}`} className={styles.thumbnailLink}>
+                  <img
+                    src={entry.imageUrl}
+                    alt={entry.title}
+                    className={styles.thumbnail}
+                  />
                 </Link>
 
-                <div className={styles.entryBody}>
-                  <div className={styles.entryHeader}>
-                    <Link
-                      to={`/anime/${anime.id}`}
-                      className={styles.titleLink}
+                <div className={styles.rowMain}>
+                  <Link to={`/anime/${animeId}`} className={styles.titleLink}>
+                    <h2 className={styles.entryTitle}>{entry.title}</h2>
+                  </Link>
+
+                  <div className={styles.metaRow}>
+                    <span
+                      className={styles.statusPill}
+                      data-status={entry.status}
                     >
-                      <h2 className={styles.entryTitle}>{anime.title}</h2>
-                    </Link>
+                      {isCompleted ? "Completed" : "Watch later"}
+                    </span>
 
-                    <div className={styles.metaRow}>
-                      <span
-                        className={`${styles.metaPill} ${styles.metaPillAccent}`}
-                      >
-                        {entry.status === "WATCH_LATER"
-                          ? "Watch later"
-                          : "Completed"}
-                      </span>
+                    <RatingBadge
+                      label="Global"
+                      value={entry.averageRating}
+                      compact
+                      emptyText="No global rating"
+                    />
 
-                      <span className={styles.metaPill}>
-                        {hasGlobalRating
-                          ? `Global rating: ${Number(anime.averageRating).toFixed(1)}`
-                          : "No ratings yet"}
-                      </span>
-
-                      <span className={styles.metaPill}>
-                        {entry.personalRating
-                          ? `Your rating: ${entry.personalRating}`
-                          : "No personal rating"}
-                      </span>
-                    </div>
+                    <RatingBadge
+                      label="Your"
+                      value={entry.personalRating}
+                      personal
+                      compact
+                      precision={0}
+                      emptyText="Not rated"
+                    />
                   </div>
+                </div>
 
-                  <div className={styles.fieldsGrid}>
-                    <div className={styles.field}>
-                      <label className={styles.fieldLabel}>Status</label>
-                      <WatchStatusSelect
-                        value={entry.status}
-                        disabled={isSaving}
-                        onChange={(nextStatus) =>
-                          handleStatusChange(
-                            anime.id,
-                            nextStatus,
-                            entry.personalRating
-                          )
-                        }
-                      />
-                    </div>
-
-                    <div className={styles.field}>
-                      <label className={styles.fieldLabel}>Personal rating</label>
-                      <RatingInput
-                        value={entry.personalRating ?? ""}
-                        disabled={isSaving}
-                        onChange={(nextValue) =>
-                          handleRatingChange(anime.id, entry.status, nextValue)
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  <div className={styles.actions}>
+                <div className={styles.rowControls}>
+                  <div className={styles.statusButtons}>
                     <button
                       type="button"
-                      onClick={() => handleRemove(anime.id)}
+                      disabled={isSaving}
+                      onClick={() =>
+                        handleStatusChange(
+                          animeId,
+                          "WATCH_LATER",
+                          entry.personalRating
+                        )
+                      }
+                      data-active={!isCompleted ? "true" : "false"}
+                    >
+                      Watch later
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={isSaving}
+                      onClick={() =>
+                        handleStatusChange(
+                          animeId,
+                          "COMPLETED",
+                          entry.personalRating
+                        )
+                      }
+                      data-active={isCompleted ? "true" : "false"}
+                    >
+                      Completed
+                    </button>
+                  </div>
+
+                  <RatingPicker
+                    value={entry.personalRating ?? ""}
+                    disabled={isSaving}
+                    compact
+                    onChange={(nextValue) =>
+                      handleRatingChange(animeId, entry.status, nextValue)
+                    }
+                  />
+
+                  <div className={styles.actionRow}>
+
+
+                    <button
+                      type="button"
+                      onClick={() => handleRemove(entry)}
                       disabled={isSaving}
                       className={styles.removeButton}
                     >
-                      {isSaving ? "Working..." : "Remove from watchlist"}
+                      {isSaving ? "Working..." : "Remove"}
                     </button>
                   </div>
                 </div>

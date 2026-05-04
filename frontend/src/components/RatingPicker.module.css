@@ -1,0 +1,94 @@
+.root {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.scale {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.watchFields {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.ratingButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.ratingButton:hover:not(:disabled) {
+  border-color: rgba(245, 197, 24, 0.7);
+  background: rgba(245, 197, 24, 0.15);
+  color: var(--color-text);
+  transform: translateY(-1px);
+}
+
+.ratingButton[data-selected="true"] {
+  border-color: rgba(245, 197, 24, 0.8);
+  background: var(--color-rating, #f5c518);
+  color: #111827;
+}
+
+.ratingButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+}
+
+.clearButton {
+  justify-self: start;
+  min-height: 34px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-soft);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.clearButton:hover:not(:disabled) {
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
+}
+
+.clearButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.root[data-compact="true"] .scale {
+  grid-template-columns: repeat(10, 30px);
+}
+
+.root[data-compact="true"] .ratingButton {
+  min-height: 30px;
+  font-size: 0.78rem;
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 720px) {
+  .scale,
+  .root[data-compact="true"] .scale {
+    grid-template-columns: repeat(5, minmax(38px, 1fr));
+  }
+}

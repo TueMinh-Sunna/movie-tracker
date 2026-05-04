@@ -1,6 +1,6 @@
 import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, createSearchParams, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { getAnimeById } from "../api/animeApi";
 import { createComment, getCommentsByAnimeId } from "../api/commentApi";
@@ -8,6 +8,9 @@ import CommentList from "../components/CommentList";
 import CommentForm from "../components/CommentForm";
 import LoadingState from "../components/LoadingState";
 import EmptyState from "../components/EmptyState";
+import WatchLaterButton from "../components/WatchLaterButton";
+import RatingBadge from "../components/RatingBadge";
+import RatingPicker from "../components/RatingPicker";
 import { authState } from "../state/authState";
 import {
   addToWatchlist,
@@ -15,21 +18,16 @@ import {
   removeFromWatchlist,
   updateWatchlistEntry,
 } from "../api/watchlistApi";
-import WatchStatusSelect from "../components/WatchStatusSelect";
-import RatingInput from "../components/RatingInput";
 import styles from "./AnimeDetailsPage.module.css";
 import { DetailsPageSkeleton } from "../components/Skeleton";
 
 export default function AnimeDetailsPage() {
   const { id } = useParams();
+  const auth = useRecoilValue(authState);
 
   const [anime, setAnime] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  useDocumentTitle(anime ? anime.title : "Anime Details");
-
-  const auth = useRecoilValue(authState);
 
   const [comments, setComments] = useState([]);
   const [commentsLoading, setCommentsLoading] = useState(true);
@@ -41,6 +39,34 @@ export default function AnimeDetailsPage() {
   const [watchStatus, setWatchStatus] = useState("WATCH_LATER");
   const [personalRating, setPersonalRating] = useState("");
   const [isSynopsisExpanded, setIsSynopsisExpanded] = useState(false);
+
+  const originalStatus = watchEntry?.status ?? "WATCH_LATER";
+
+  const originalRating =
+    watchEntry?.personalRating === null ||
+      watchEntry?.personalRating === undefined
+      ? ""
+      : String(watchEntry.personalRating);
+
+  const hasChanges =
+    watchStatus !== originalStatus ||
+    String(personalRating) !== originalRating;
+
+  useDocumentTitle(anime ? anime.title : "Anime Details");
+
+  async function loadAnimeDetails() {
+    setLoading(true);
+    setError("");
+
+    try {
+      const result = await getAnimeById(id);
+      setAnime(result);
+    } catch (err) {
+      setError(err.message || "Failed to load anime details");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function loadComments() {
     setCommentsLoading(true);
@@ -89,20 +115,6 @@ export default function AnimeDetailsPage() {
     }
   }
 
-  async function loadAnimeDetails() {
-    setLoading(true);
-    setError("");
-
-    try {
-      const result = await getAnimeById(id);
-      setAnime(result);
-    } catch (err) {
-      setError(err.message || "Failed to load anime details");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
     loadAnimeDetails();
   }, [id]);
@@ -115,6 +127,26 @@ export default function AnimeDetailsPage() {
     loadWatchEntry();
   }, [id, auth.user]);
 
+  function parsePersonalRating() {
+    const trimmedRating = String(personalRating).trim();
+
+    if (trimmedRating === "") {
+      return null;
+    }
+
+    const parsedRating = Number(trimmedRating);
+
+    if (
+      !Number.isInteger(parsedRating) ||
+      parsedRating < 1 ||
+      parsedRating > 10
+    ) {
+      throw new Error("Personal rating must be a whole number from 1 to 10.");
+    }
+
+    return parsedRating;
+  }
+
   async function handleCreateComment(content) {
     await createComment(id, content);
     await loadComments();
@@ -125,17 +157,7 @@ export default function AnimeDetailsPage() {
     setWatchError("");
 
     try {
-      const parsedRating =
-        String(personalRating).trim() === ""
-          ? null
-          : Number(personalRating);
-
-      if (
-        parsedRating !== null &&
-        (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 10)
-      ) {
-        throw new Error("Personal rating must be a whole number from 1 to 10.");
-      }
+      const parsedRating = parsePersonalRating();
 
       await addToWatchlist({
         animeId: Number(id),
@@ -150,9 +172,7 @@ export default function AnimeDetailsPage() {
         err.validationErrors?.personalRating || err.validationErrors?.status;
 
       setWatchError(
-        backendFieldError ||
-        err.message ||
-        "Failed to add to watchlist."
+        backendFieldError || err.message || "Failed to add to watchlist."
       );
     } finally {
       setWatchLoading(false);
@@ -164,17 +184,7 @@ export default function AnimeDetailsPage() {
     setWatchError("");
 
     try {
-      const parsedRating =
-        String(personalRating).trim() === ""
-          ? null
-          : Number(personalRating);
-
-      if (
-        parsedRating !== null &&
-        (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 10)
-      ) {
-        throw new Error("Personal rating must be a whole number from 1 to 10.");
-      }
+      const parsedRating = parsePersonalRating();
 
       await updateWatchlistEntry(id, {
         status: watchStatus,
@@ -188,9 +198,7 @@ export default function AnimeDetailsPage() {
         err.validationErrors?.personalRating || err.validationErrors?.status;
 
       setWatchError(
-        backendFieldError ||
-        err.message ||
-        "Failed to update watchlist."
+        backendFieldError || err.message || "Failed to update watchlist."
       );
     } finally {
       setWatchLoading(false);
@@ -198,6 +206,14 @@ export default function AnimeDetailsPage() {
   }
 
   async function handleRemoveFromWatchlist() {
+    const confirmed = window.confirm(
+      anime ? `Remove "${anime.title}" from Watch later?` : "Remove from list?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
     setWatchLoading(true);
     setWatchError("");
 
@@ -237,7 +253,6 @@ export default function AnimeDetailsPage() {
     );
   }
 
-  const hasRating = Number(anime.averageRating) > 0;
   const synopsis = anime.synopsis || "No synopsis available.";
   const shouldCollapseSynopsis = synopsis.length > 280;
   const visibleSynopsis =
@@ -262,20 +277,24 @@ export default function AnimeDetailsPage() {
 
         <div className={styles.heroContent}>
           <div className={styles.titleBlock}>
-            <h1 className={styles.title}>
-              {anime.title}{" "}
-              </h1>
+            <h1 className={styles.title}>{anime.title}</h1>
 
-            <div className={styles.metaRow}>
-              <span className={styles.metaPill}>
-                {hasRating
-                  ? `Global rating: ${Number(anime.averageRating).toFixed(1)}`
-                  : "No ratings yet"}
-              </span>
+            <div className={styles.ratingStrip}>
+              <RatingBadge
+                label="Global rating"
+                value={anime.averageRating}
+                emptyText="No rating"
+              />
 
-              <span
-                className={`${styles.metaPill} ${styles.metaPillMuted}`}
-              >
+              <RatingBadge
+                label="Your rating"
+                value={personalRating}
+                personal
+                precision={0}
+                emptyText={auth.user ? "Not rated" : "Log in"}
+              />
+
+              <span className={styles.commentBadge}>
                 {comments.length} comment{comments.length === 1 ? "" : "s"}
               </span>
             </div>
@@ -287,9 +306,18 @@ export default function AnimeDetailsPage() {
             <div className={styles.genreList}>
               {anime.genres.length > 0 ? (
                 anime.genres.map((genre) => (
-                  <span key={genre.id} className={styles.genreChip}>
+                  <Link
+                    key={genre.id}
+                    to={{
+                      pathname: "/browse",
+                      search: createSearchParams({
+                        genre: genre.name,
+                      }).toString(),
+                    }}
+                    className={styles.genreChip}
+                  >
                     {genre.name}
-                  </span>
+                  </Link>
                 ))
               ) : (
                 <span className={styles.genreChip}>No genres</span>
@@ -330,7 +358,9 @@ export default function AnimeDetailsPage() {
             <div className={styles.infoBox}>Log in to comment.</div>
           )}
 
-          {commentsLoading && <LoadingState message="Loading comments..." compact />}
+          {commentsLoading && (
+            <LoadingState message="Loading comments..." compact />
+          )}
 
           {commentsError && (
             <div className={styles.errorBox}>Error: {commentsError}</div>
@@ -350,75 +380,119 @@ export default function AnimeDetailsPage() {
         </section>
 
         <aside className={styles.watchlistCard}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>My watchlist</h2>
-            <span className={styles.sectionDescription}>
-              Save your personal status and rating
-            </span>
+          <div className={styles.playlistHeader}>
+            <div className={styles.playlistIcon} aria-hidden="true">
+              ▶
+            </div>
+
+            <div>
+              <h2 className={styles.playlistTitle}>Watchlist</h2>
+              <p className={styles.playlistDescription}>
+                Save this anime, mark your progress, and rate it like a title
+                page.
+              </p>
+            </div>
           </div>
 
           {!auth.user ? (
             <div className={styles.infoBox}>
-              Log in to add this anime to your watchlist.
+              Log in to save this anime to your Watch later list and add a
+              personal rating.
             </div>
           ) : (
             <div className={styles.watchFields}>
-              {watchError && (
+              {watchError ? (
                 <div className={styles.errorBox}>Error: {watchError}</div>
-              )}
+              ) : null}
 
-              <div className={styles.watchFieldGrid}>
-                <div className={styles.watchField}>
-                  <label className={styles.sectionLabel}>Status</label>
-                  <WatchStatusSelect
-                    value={watchStatus}
-                    disabled={watchLoading}
-                    onChange={setWatchStatus}
-                  />
+              <WatchLaterButton
+                isSaved={Boolean(watchEntry)}
+                isLoading={watchLoading}
+                disabled={watchLoading}
+                onClick={handleAddToWatchlist}
+                variant="panel"
+                defaultLabel="Save to Watch later"
+                savedLabel="Saved to Watch later"
+                loadingLabel="Saving..."
+              />
+
+              <div className={styles.statusCard}>
+                <div className={styles.statusHeader}>
+                  <span className={styles.sectionLabel}>Status</span>
+                  <span className={styles.statusHint}>
+                    {watchStatus === "COMPLETED" ? "Finished" : "Queued"}
+                  </span>
                 </div>
 
-                <div className={styles.watchField}>
-                  <label className={styles.sectionLabel}>Personal rating</label>
-                  <RatingInput
-                    value={personalRating}
+                <div className={styles.statusSegment}>
+                  <button
+                    type="button"
+                    onClick={() => setWatchStatus("WATCH_LATER")}
                     disabled={watchLoading}
-                    onChange={setPersonalRating}
-                  />
+                    data-active={
+                      watchStatus === "WATCH_LATER" ? "true" : "false"
+                    }
+                  >
+                    Watch later
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setWatchStatus("COMPLETED")}
+                    disabled={watchLoading}
+                    data-active={
+                      watchStatus === "COMPLETED" ? "true" : "false"
+                    }
+                  >
+                    Completed
+                  </button>
                 </div>
               </div>
 
-              {watchEntry ? (
-                <div className={styles.watchActions}>
-                  <button
-                    type="button"
-                    onClick={handleUpdateWatchlist}
-                    disabled={watchLoading}
-                    className={styles.primaryButton}
-                  >
-                    {watchLoading ? "Saving..." : "Update watchlist"}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleRemoveFromWatchlist}
-                    disabled={watchLoading}
-                    className={styles.dangerButton}
-                  >
-                    {watchLoading ? "Working..." : "Remove from watchlist"}
-                  </button>
+              <div className={styles.ratingCard}>
+                <div className={styles.statusHeader}>
+                  <span className={styles.sectionLabel}>Your rating</span>
                 </div>
-              ) : (
-                <div className={styles.watchActions}>
+
+                <RatingPicker
+                  value={personalRating}
+                  disabled={watchLoading}
+                  onChange={setPersonalRating}
+                />
+              </div>
+
+              <div className={styles.watchActions}>
+                {watchEntry ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleUpdateWatchlist}
+                      disabled={watchLoading || !hasChanges}
+                      className={styles.primaryButton}
+                    >
+                      {watchLoading ? "Saving..." : "Save changes"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleRemoveFromWatchlist}
+                      disabled={watchLoading}
+                      className={styles.dangerButton}
+                    >
+                      {watchLoading ? "Working..." : "Remove from list"}
+                    </button>
+                  </>
+                ) : (
                   <button
                     type="button"
                     onClick={handleAddToWatchlist}
                     disabled={watchLoading}
                     className={styles.primaryButton}
                   >
-                    {watchLoading ? "Adding..." : "Add to watchlist"}
+                    {watchLoading ? "Saving..." : "Save with rating"}
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           )}
         </aside>

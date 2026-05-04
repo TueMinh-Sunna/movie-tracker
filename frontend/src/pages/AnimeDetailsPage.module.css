@@ -133,9 +133,13 @@
 
 .contentGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
   gap: var(--space-6);
   align-items: start;
+}
+
+.watchlistCard {
+  min-width: 0;
 }
 
 .commentsCard,
@@ -325,4 +329,116 @@
 .synopsisToggle:hover {
   background: var(--color-accent-soft);
   color: var(--color-accent-hover);
+}
+
+.ratingStrip {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.commentBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 54px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+}
+
+.genreChip {
+  text-decoration: none;
+}
+
+.playlistHeader {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.playlistIcon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-lg);
+  background: var(--color-text);
+  color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.playlistEyebrow {
+  color: var(--color-text-soft);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.playlistTitle {
+  margin: 0;
+  font-size: var(--font-size-h3);
+}
+
+.playlistDescription {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.statusCard,
+.ratingCard {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-muted);
+}
+
+.statusHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.statusHint {
+  color: var(--color-text-soft);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+}
+
+.statusSegment {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  padding: var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-subtle);
+}
+
+.statusSegment button {
+  min-height: 40px;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.statusSegment button[data-active="true"] {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.statusSegment button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
 }

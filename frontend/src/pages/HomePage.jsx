@@ -1,6 +1,5 @@
 import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { getAnimeList } from "../api/animeApi";
 import AnimeCard from "../components/AnimeCard";
@@ -8,7 +7,7 @@ import EmptyState from "../components/EmptyState";
 import { authState } from "../state/authState";
 import styles from "./HomePage.module.css";
 import { AnimeGridSkeleton } from "../components/Skeleton";
-
+import { Link, useLocation } from "react-router-dom";
 
 export default function HomePage() {
   useDocumentTitle("Home");
@@ -18,6 +17,8 @@ export default function HomePage() {
   const [topAnime, setTopAnime] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const location = useLocation();
 
   useEffect(() => {
     async function loadTopAnime() {
@@ -65,7 +66,7 @@ export default function HomePage() {
                 <Link to="/signup" className={styles.secondaryAction}>
                   Create account
                 </Link>
-                <Link to="/login" className={styles.ghostAction}>
+                <Link to="/login" className={styles.ghostAction} state={{ from: location }}>
                   Log in
                 </Link>
               </>
