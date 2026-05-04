@@ -1,133 +1,184 @@
 .root {
-  min-height: 68vh;
-  display: grid;
-  place-items: center;
-  padding: var(--space-4) 0 var(--space-8);
+    min-height: 68vh;
+    display: grid;
+    place-items: center;
+    padding: var(--space-4) 0 var(--space-8);
 }
 
 .card {
-  width: min(100%, 460px);
-  display: grid;
-  gap: var(--space-5);
-  padding: var(--space-8);
-  border: 1px solid var(--color-border-soft);
-  border-radius: var(--radius-xl);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-md);
+    width: min(100%, 460px);
+    display: grid;
+    gap: var(--space-5);
+    padding: var(--space-8);
+    border: 1px solid var(--color-border-soft);
+    border-radius: var(--radius-xl);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md);
 }
 
 .header {
-  display: grid;
-  gap: var(--space-2);
-  text-align: center;
+    display: grid;
+    gap: var(--space-2);
+    text-align: center;
 }
 
 .title {
-  margin: 0;
+    margin: 0;
 }
 
 .description {
-  color: var(--color-text-muted);
+    color: var(--color-text-muted);
 }
 
 .form {
-  display: grid;
-  gap: var(--space-4);
+    display: grid;
+    gap: var(--space-4);
 }
 
 .field {
-  display: grid;
-  gap: var(--space-2);
+    display: grid;
+    gap: var(--space-2);
 }
 
 .label {
-  color: var(--color-text);
-  font-size: var(--font-size-label);
-  font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    font-size: var(--font-size-label);
+    font-weight: var(--font-weight-semibold);
 }
 
 .input {
-  width: 100%;
-  min-height: var(--control-height);
-  padding: 0 var(--control-padding-x);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-text);
-  box-shadow: var(--shadow-sm);
-  transition:
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast);
+    width: 100%;
+    min-height: var(--control-height);
+    padding: 0 var(--control-padding-x);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: var(--shadow-sm);
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
 }
 
 .input:hover {
-  border-color: var(--color-border-strong);
+    border-color: var(--color-border-strong);
 }
 
 .error {
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid rgba(220, 38, 38, 0.2);
-  border-radius: var(--radius-md);
-  background: var(--color-danger-soft);
-  color: var(--color-danger);
-  font-size: var(--font-size-small);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: var(--radius-md);
+    background: var(--color-danger-soft);
+    color: var(--color-danger);
+    font-size: var(--font-size-small);
 }
 
 .fieldError {
-  color: var(--color-danger);
-  font-size: var(--font-size-small);
+    color: var(--color-danger);
+    font-size: var(--font-size-small);
 }
 
 .submitButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--control-height);
-  padding: 0 var(--space-4);
-  border-radius: var(--radius-md);
-  background: var(--color-accent);
-  color: var(--color-accent-contrast);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition:
-    background var(--transition-fast),
-    box-shadow var(--transition-fast),
-    transform var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--control-height);
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition:
+        background var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
 }
 
 .submitButton:hover:not(:disabled) {
-  background: var(--color-accent-hover);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+    background: var(--color-accent-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
 }
 
 .submitButton:disabled {
-  background: var(--color-disabled-bg);
-  color: var(--color-disabled-text);
-  cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
+    background: var(--color-disabled-bg);
+    color: var(--color-disabled-text);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
 }
 
 .footer {
-  color: var(--color-text-muted);
-  text-align: center;
+    color: var(--color-text-muted);
+    text-align: center;
 }
 
 .link {
-  color: var(--color-accent);
-  font-weight: var(--font-weight-semibold);
-  text-decoration: none;
+    color: var(--color-accent);
+    font-weight: var(--font-weight-semibold);
+    text-decoration: none;
 }
 
 .link:hover {
-  color: var(--color-accent-hover);
-  text-decoration: underline;
+    color: var(--color-accent-hover);
+    text-decoration: underline;
 }
 
 @media (max-width: 720px) {
-  .card {
-    padding: var(--space-5);
-  }
+    .card {
+        padding: var(--space-5);
+    }
+}
+
+.toggleButton {
+    margin-top: var(--space-1);
+    align-self: flex-end;
+    background: transparent;
+    border: none;
+    color: var(--color-accent);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    padding: 0;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputWithIcon {
+  padding-right: 44px; /* space for the button */
+}
+
+.iconButton {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  font-size: 16px;
+  line-height: 1;
+
+  color: var(--color-text-soft);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+}
+
+.iconButton:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
 }

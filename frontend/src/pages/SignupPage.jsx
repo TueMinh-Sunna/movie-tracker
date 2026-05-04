@@ -14,10 +14,13 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
+
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -112,20 +115,31 @@ export default function SignupPage() {
               Password
             </label>
 
-            <input
-              id="signup-password"
-              type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setFieldErrors((current) => ({
-                  ...current,
-                  password: "",
-                  confirmPassword: "",
-                }));
-              }}
-              className={styles.input}
-            />
+            <div className={styles.inputWrapper}>
+              <input
+                id="signup-password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setFieldErrors((current) => ({
+                    ...current,
+                    password: "",
+                    confirmPassword: "",
+                  }));
+                }}
+                className={`${styles.input} ${styles.inputWithIcon}`}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className={styles.iconButton}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
 
             {fieldErrors.password ? (
               <div className={styles.fieldError}>{fieldErrors.password}</div>
@@ -137,19 +151,30 @@ export default function SignupPage() {
               Confirm password
             </label>
 
-            <input
-              id="signup-confirm-password"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => {
-                setConfirmPassword(e.target.value);
-                setFieldErrors((current) => ({
-                  ...current,
-                  confirmPassword: "",
-                }));
-              }}
-              className={styles.input}
-            />
+            <div className={styles.inputWrapper}>
+              <input
+                id="signup-confirm-password"
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  setFieldErrors((current) => ({
+                    ...current,
+                    confirmPassword: "",
+                  }));
+                }}
+                className={`${styles.input} ${styles.inputWithIcon}`}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                className={styles.iconButton}
+                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              >
+                {showConfirmPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
 
             {fieldErrors.confirmPassword ? (
               <div className={styles.fieldError}>

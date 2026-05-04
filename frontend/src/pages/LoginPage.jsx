@@ -15,6 +15,7 @@ export default function LoginPage() {
 
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -99,16 +100,27 @@ export default function LoginPage() {
               Password
             </label>
 
-            <input
-              id="login-password"
-              type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setFieldErrors((current) => ({ ...current, password: "" }));
-              }}
-              className={styles.input}
-            />
+            <div className={styles.inputWrapper}>
+              <input
+                id="login-password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setFieldErrors((current) => ({ ...current, password: "" }));
+                }}
+                className={`${styles.input} ${styles.inputWithIcon}`}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className={styles.iconButton}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
 
             {fieldErrors.password ? (
               <div className={styles.fieldError}>{fieldErrors.password}</div>
