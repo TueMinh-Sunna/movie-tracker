@@ -5,9 +5,10 @@ import AnimeCard from "../components/AnimeCard";
 import SearchBar from "../components/SearchBar";
 import GenreFilter from "../components/GenreFilter";
 import SortSelect from "../components/SortSelect";
-import LoadingState from "../components/LoadingState";
 import EmptyState from "../components/EmptyState";
 import styles from "./BrowsePage.module.css";
+import { AnimeGridSkeleton } from "../components/Skeleton";
+
 
 export default function BrowsePage() {
   useDocumentTitle("Browse");
@@ -118,7 +119,7 @@ export default function BrowsePage() {
       </section>
 
       <section className={styles.feedbackArea}>
-        {loading && <LoadingState message="Loading anime..." />}
+        {loading && <AnimeGridSkeleton count={8} />}
 
         {error && <div className={styles.errorBox}>Error: {error}</div>}
 

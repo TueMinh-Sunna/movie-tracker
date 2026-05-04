@@ -73,18 +73,38 @@
   transition:
     background var(--transition-fast),
     color var(--transition-fast),
-    box-shadow var(--transition-fast);
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .navLink:hover {
   background: var(--color-surface);
   color: var(--color-text);
+  box-shadow: var(--shadow-sm);
 }
 
 .navLinkActive {
   background: var(--color-accent-soft);
   color: var(--color-accent);
   box-shadow: var(--shadow-sm);
+
+  /* NEW: stronger visual signal */
+  font-weight: var(--font-weight-semibold);
+  border: 1px solid transparent;
+
+  /* subtle “selected” effect */
+  position: relative;
+}
+
+.navLinkActive::after {
+  content: "";
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  bottom: 4px;
+  height: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
 }
 
 .userPill {

@@ -4,10 +4,11 @@ import { Link } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { getAnimeList } from "../api/animeApi";
 import AnimeCard from "../components/AnimeCard";
-import LoadingState from "../components/LoadingState";
 import EmptyState from "../components/EmptyState";
 import { authState } from "../state/authState";
 import styles from "./HomePage.module.css";
+import { AnimeGridSkeleton } from "../components/Skeleton";
+
 
 export default function HomePage() {
   useDocumentTitle("Home");
@@ -93,7 +94,7 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {loading && <LoadingState message="Loading top anime..." />}
+        {loading && <AnimeGridSkeleton count={6} />}
 
         {error && <div className={styles.errorBox}>Error: {error}</div>}
 

@@ -8,9 +8,9 @@ import {
 } from "../api/watchlistApi";
 import WatchStatusSelect from "../components/WatchStatusSelect";
 import RatingInput from "../components/RatingInput";
-import LoadingState from "../components/LoadingState";
 import EmptyState from "../components/EmptyState";
 import styles from "./WatchlistPage.module.css";
+import { WatchlistSkeleton } from "../components/Skeleton";
 
 export default function WatchlistPage() {
   useDocumentTitle("My Watchlist");
@@ -126,7 +126,7 @@ export default function WatchlistPage() {
   }
 
   if (loading) {
-    return <LoadingState message="Loading your watchlist..." />;
+    return <WatchlistSkeleton />;
   }
 
   return (

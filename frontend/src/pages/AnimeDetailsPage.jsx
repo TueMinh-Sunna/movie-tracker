@@ -18,6 +18,7 @@ import {
 import WatchStatusSelect from "../components/WatchStatusSelect";
 import RatingInput from "../components/RatingInput";
 import styles from "./AnimeDetailsPage.module.css";
+import { DetailsPageSkeleton } from "../components/Skeleton";
 
 export default function AnimeDetailsPage() {
   const { id } = useParams();
@@ -149,8 +150,8 @@ export default function AnimeDetailsPage() {
 
       setWatchError(
         backendFieldError ||
-          err.message ||
-          "Failed to add to watchlist."
+        err.message ||
+        "Failed to add to watchlist."
       );
     } finally {
       setWatchLoading(false);
@@ -187,8 +188,8 @@ export default function AnimeDetailsPage() {
 
       setWatchError(
         backendFieldError ||
-          err.message ||
-          "Failed to update watchlist."
+        err.message ||
+        "Failed to update watchlist."
       );
     } finally {
       setWatchLoading(false);
@@ -213,7 +214,7 @@ export default function AnimeDetailsPage() {
   }
 
   if (loading) {
-    return <LoadingState message="Loading anime details..." />;
+    return <DetailsPageSkeleton />;
   }
 
   if (error) {
