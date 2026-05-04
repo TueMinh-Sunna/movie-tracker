@@ -1,21 +1,26 @@
+import styles from "./GenreFilter.module.css";
+
 export default function GenreFilter({ genres, value, onChange }) {
   return (
-    <select
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-      style={{
-        padding: "10px",
-        border: "1px solid #ccc",
-        borderRadius: "6px",
-      }}
-    >
-      <option value="">All genres</option>
+    <div className={styles.root}>
+      <label htmlFor="browse-genre" className={styles.label}>
+        Genre
+      </label>
 
-      {genres.map((genre) => (
-        <option key={genre.id} value={genre.name}>
-          {genre.name}
-        </option>
-      ))}
-    </select>
+      <select
+        id="browse-genre"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={styles.select}
+      >
+        <option value="">All genres</option>
+
+        {genres.map((genre) => (
+          <option key={genre.id} value={genre.name}>
+            {genre.name}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 }

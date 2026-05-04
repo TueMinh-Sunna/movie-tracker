@@ -7,10 +7,11 @@ import AnimeCard from "../components/AnimeCard";
 import LoadingState from "../components/LoadingState";
 import EmptyState from "../components/EmptyState";
 import { authState } from "../state/authState";
+import styles from "./HomePage.module.css";
 
 export default function HomePage() {
   useDocumentTitle("Home");
-  
+
   const auth = useRecoilValue(authState);
 
   const [topAnime, setTopAnime] = useState([]);
@@ -36,45 +37,65 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-      <section
-        style={{
-          padding: "32px 0",
-          borderBottom: "1px solid #eee",
-          marginBottom: "32px",
-        }}
-      >
-        <h1 style={{ marginTop: 0, marginBottom: "12px", fontSize: "36px" }}>
-          Mini Anime List
-        </h1>
+    <div className={styles.root}>
+      <section className={styles.hero}>
+        <div className={styles.heroInner}>
+          <span className={styles.eyebrow}>Track what you love</span>
 
-        <p style={{ fontSize: "18px", lineHeight: "1.6", maxWidth: "700px" }}>
-          Browse anime, read details, post comments, and manage your own personal
-          watchlist with statuses and ratings.
-        </p>
+          <div>
+            <h1 className={styles.title}>Mini Anime List</h1>
+            <p className={styles.description}>
+              Browse anime, explore details, read comments, and manage your own
+              watchlist with personal ratings and watch status.
+            </p>
+          </div>
+
+          <div className={styles.heroActions}>
+            <Link to="/browse" className={styles.primaryAction}>
+              Browse anime
+            </Link>
+
+            {auth.user ? (
+              <Link to="/watchlist" className={styles.secondaryAction}>
+                Go to my watchlist
+              </Link>
+            ) : (
+              <>
+                <Link to="/signup" className={styles.secondaryAction}>
+                  Create account
+                </Link>
+                <Link to="/login" className={styles.ghostAction}>
+                  Log in
+                </Link>
+              </>
+            )}
+          </div>
+
+          <div className={styles.heroMeta}>
+            <span className={styles.metaItem}>Search and filter anime</span>
+            <span className={styles.metaItem}>Read and post comments</span>
+            <span className={styles.metaItem}>Build your personal watchlist</span>
+          </div>
+        </div>
       </section>
 
-      <section>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "12px",
-            flexWrap: "wrap",
-            marginBottom: "20px",
-          }}
-        >
-          <h2 style={{ margin: 0 }}>Top rated anime</h2>
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <div className={styles.sectionTitleGroup}>
+            <h2 className={styles.sectionTitle}>Top rated anime</h2>
+            <p className={styles.sectionDescription}>
+              A quick look at the highest-rated titles in the app right now.
+            </p>
+          </div>
 
-          <Link to="/browse" style={{ textDecoration: "none" }}>
-            View all
+          <Link to="/browse" className={styles.viewAllLink}>
+            View all anime
           </Link>
         </div>
 
         {loading && <LoadingState message="Loading top anime..." />}
 
-        {error && <p style={{ color: "crimson" }}>Error: {error}</p>}
+        {error && <div className={styles.errorBox}>Error: {error}</div>}
 
         {!loading && !error && topAnime.length === 0 && (
           <EmptyState
@@ -84,13 +105,7 @@ export default function HomePage() {
         )}
 
         {!loading && !error && topAnime.length > 0 && (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-              gap: "16px",
-            }}
-          >
+          <div className={styles.grid}>
             {topAnime.map((anime) => (
               <AnimeCard key={anime.id} anime={anime} />
             ))}

@@ -1,3 +1,5 @@
+import styles from "./RatingInput.module.css";
+
 export default function RatingInput({
   value,
   onChange,
@@ -12,12 +14,7 @@ export default function RatingInput({
       onChange={(event) => onChange(event.target.value)}
       disabled={disabled}
       placeholder="1 to 10"
-      style={{
-        padding: "10px",
-        border: "1px solid #ccc",
-        borderRadius: "6px",
-        width: "100px",
-      }}
+      className={styles.input}
     />
   );
 }

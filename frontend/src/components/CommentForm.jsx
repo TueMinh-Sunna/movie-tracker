@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { validateCommentForm } from "../utils/validation";
+import styles from "./CommentForm.module.css";
 
 export default function CommentForm({ onSubmit }) {
   const [content, setContent] = useState("");
@@ -32,45 +33,48 @@ export default function CommentForm({ onSubmit }) {
     }
   }
 
+  const characterCount = content.length;
+
   return (
-    <form onSubmit={handleSubmit} noValidate>
-      <div style={{ marginBottom: "10px" }}>
-        <label style={{ display: "block", marginBottom: "6px" }}>
-          Write a comment
-        </label>
+    <form onSubmit={handleSubmit} noValidate className={styles.form}>
+      <div className={styles.field}>
+        <div className={styles.labelRow}>
+          <label htmlFor="comment-content" className={styles.label}>
+            Write a comment
+          </label>
+          <span className={styles.helperText}>Max 1000 characters</span>
+        </div>
 
         <textarea
+          id="comment-content"
           value={content}
           onChange={(event) => {
             setContent(event.target.value);
             setFieldErrors((current) => ({ ...current, content: "" }));
           }}
-          rows={4}
+          rows={5}
           placeholder="Share your thoughts about this anime..."
-          style={{
-            width: "100%",
-            padding: "10px",
-            border: "1px solid #ccc",
-            borderRadius: "8px",
-            resize: "vertical",
-            fontFamily: "inherit",
-          }}
+          className={styles.textarea}
         />
 
-        {fieldErrors.content && (
-          <p style={{ color: "crimson", margin: "6px 0 0" }}>
-            {fieldErrors.content}
-          </p>
-        )}
+        {fieldErrors.content ? (
+          <div className={styles.error}>{fieldErrors.content}</div>
+        ) : null}
       </div>
 
-      {error && (
-        <p style={{ color: "crimson", marginBottom: "10px" }}>{error}</p>
-      )}
+      {error ? <div className={styles.error}>{error}</div> : null}
 
-      <button type="submit" disabled={submitting} style={{ padding: "10px 16px" }}>
-        {submitting ? "Posting..." : "Post comment"}
-      </button>
+      <div className={styles.actions}>
+        <span className={styles.counter}>{characterCount}/1000</span>
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className={styles.submitButton}
+        >
+          {submitting ? "Posting..." : "Post comment"}
+        </button>
+      </div>
     </form>
   );
 }

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import styles from "./AnimeCard.module.css";
 
 export default function AnimeCard({
   anime,
@@ -8,63 +9,37 @@ export default function AnimeCard({
   const hasRating = anime.averageRating > 0;
 
   return (
-    <article
-      style={{
-        border: "1px solid #ddd",
-        borderRadius: "8px",
-        backgroundColor: "#fff",
-        height: "100%",
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <Link
-        to={`/anime/${anime.id}`}
-        style={{
-          textDecoration: "none",
-          color: "inherit",
-          display: "block",
-          flex: 1,
-        }}
-      >
-        <img
-          src={anime.imageUrl}
-          alt={anime.title}
-          style={{
-            width: "100%",
-            height: "260px",
-            objectFit: "cover",
-            display: "block",
-          }}
-        />
-
-        <div style={{ padding: "12px" }}>
-          <h3 style={{ margin: "0 0 8px 0", fontSize: "18px" }}>
-            {anime.title}
-          </h3>
-
-          <p style={{ margin: "0 0 8px 0", color: "#555" }}>
-            Rating: {hasRating ? anime.averageRating.toFixed(1) : "No ratings yet"}          </p>
-
-          {subtitle ? (
-            <div style={{ color: "#666", fontSize: "14px" }}>{subtitle}</div>
-          ) : null}
+    <article className={styles.root}>
+      <Link to={`/anime/${anime.id}`} className={styles.mediaLink}>
+        <div className={styles.posterWrap}>
+          <img
+            src={anime.imageUrl}
+            alt={anime.title}
+            className={styles.poster}
+          />
         </div>
       </Link>
 
-      {actions ? (
-        <div
-          style={{
-            padding: "0 12px 12px 12px",
-            display: "flex",
-            gap: "8px",
-            flexWrap: "wrap",
-          }}
-        >
-          {actions}
+      <Link to={`/anime/${anime.id}`} className={styles.contentLink}>
+        <div className={styles.content}>
+          <h3 className={styles.title}>{anime.title}</h3>
+
+          <div className={styles.ratingRow}>
+            <span className={styles.ratingLabel}>Global rating</span>
+            <span
+              className={`${styles.ratingValue} ${
+                !hasRating ? styles.ratingValueEmpty : ""
+              }`}
+            >
+              {hasRating ? anime.averageRating.toFixed(1) : "No ratings yet"}
+            </span>
+          </div>
+
+          {subtitle ? <div className={styles.subtitle}>{subtitle}</div> : null}
         </div>
-      ) : null}
+      </Link>
+
+      {actions ? <div className={styles.actions}>{actions}</div> : null}
     </article>
   );
 }

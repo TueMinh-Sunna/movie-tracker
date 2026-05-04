@@ -5,10 +5,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../api/authApi";
 import { authState } from "../state/authState";
 import { validateLoginForm } from "../utils/validation";
+import styles from "./AuthPage.module.css";
 
 export default function LoginPage() {
   useDocumentTitle("Login");
-  
+
   const navigate = useNavigate();
   const setAuth = useSetRecoilState(authState);
 
@@ -57,65 +58,81 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ maxWidth: "420px", margin: "0 auto" }}>
-      <h1>Login</h1>
-
-      <form onSubmit={handleSubmit} noValidate>
-        <div style={{ marginBottom: "12px" }}>
-          <label style={{ display: "block", marginBottom: "6px" }}>
-            Username or email
-          </label>
-          <input
-            type="text"
-            value={usernameOrEmail}
-            onChange={(e) => {
-              setUsernameOrEmail(e.target.value);
-              setFieldErrors((current) => ({
-                ...current,
-                usernameOrEmail: "",
-              }));
-            }}
-            style={{ width: "100%", padding: "10px" }}
-          />
-          {fieldErrors.usernameOrEmail && (
-            <p style={{ color: "crimson", margin: "6px 0 0" }}>
-              {fieldErrors.usernameOrEmail}
-            </p>
-          )}
+    <div className={styles.root}>
+      <section className={styles.card}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Login</h1>
+          <p className={styles.description}>
+            Welcome back. Log in to manage your watchlist and comments.
+          </p>
         </div>
 
-        <div style={{ marginBottom: "12px" }}>
-          <label style={{ display: "block", marginBottom: "6px" }}>
-            Password
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              setFieldErrors((current) => ({ ...current, password: "" }));
-            }}
-            style={{ width: "100%", padding: "10px" }}
-          />
-          {fieldErrors.password && (
-            <p style={{ color: "crimson", margin: "6px 0 0" }}>
-              {fieldErrors.password}
-            </p>
-          )}
-        </div>
+        <form onSubmit={handleSubmit} noValidate className={styles.form}>
+          <div className={styles.field}>
+            <label htmlFor="login-username" className={styles.label}>
+              Username or email
+            </label>
 
-        {error && (
-          <p style={{ color: "crimson", marginBottom: "12px" }}>{error}</p>
-        )}
+            <input
+              id="login-username"
+              type="text"
+              value={usernameOrEmail}
+              onChange={(e) => {
+                setUsernameOrEmail(e.target.value);
+                setFieldErrors((current) => ({
+                  ...current,
+                  usernameOrEmail: "",
+                }));
+              }}
+              className={styles.input}
+            />
 
-        <button type="submit" disabled={submitting} style={{ padding: "10px 16px" }}>
-          {submitting ? "Logging in..." : "Login"}
-        </button>
-      </form>
+            {fieldErrors.usernameOrEmail ? (
+              <div className={styles.fieldError}>
+                {fieldErrors.usernameOrEmail}
+              </div>
+            ) : null}
+          </div>
 
-      <p style={{ marginTop: "16px" }}>
-        No account yet? <Link to="/signup">Go to Sign up</Link>
-      </p>
+          <div className={styles.field}>
+            <label htmlFor="login-password" className={styles.label}>
+              Password
+            </label>
+
+            <input
+              id="login-password"
+              type="password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setFieldErrors((current) => ({ ...current, password: "" }));
+              }}
+              className={styles.input}
+            />
+
+            {fieldErrors.password ? (
+              <div className={styles.fieldError}>{fieldErrors.password}</div>
+            ) : null}
+          </div>
+
+          {error ? <div className={styles.error}>{error}</div> : null}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className={styles.submitButton}
+          >
+            {submitting ? "Logging in..." : "Login"}
+          </button>
+        </form>
+
+        <p className={styles.footer}>
+          No account yet?{" "}
+          <Link to="/signup" className={styles.link}>
+            Go to Sign up
+          </Link>
+        </p>
+      </section>
     </div>
   );
 }

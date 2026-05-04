@@ -6,6 +6,8 @@ import { getAnimeById } from "../api/animeApi";
 import { createComment, getCommentsByAnimeId } from "../api/commentApi";
 import CommentList from "../components/CommentList";
 import CommentForm from "../components/CommentForm";
+import LoadingState from "../components/LoadingState";
+import EmptyState from "../components/EmptyState";
 import { authState } from "../state/authState";
 import {
   addToWatchlist,
@@ -15,15 +17,16 @@ import {
 } from "../api/watchlistApi";
 import WatchStatusSelect from "../components/WatchStatusSelect";
 import RatingInput from "../components/RatingInput";
+import styles from "./AnimeDetailsPage.module.css";
 
 export default function AnimeDetailsPage() {
-  useDocumentTitle(anime ? anime.title : "Anime Details");
-  
   const { id } = useParams();
 
   const [anime, setAnime] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  useDocumentTitle(anime ? anime.title : "Anime Details");
 
   const auth = useRecoilValue(authState);
 
@@ -146,8 +149,8 @@ export default function AnimeDetailsPage() {
 
       setWatchError(
         backendFieldError ||
-        err.message ||
-        "Failed to add to watchlist."
+          err.message ||
+          "Failed to add to watchlist."
       );
     } finally {
       setWatchLoading(false);
@@ -184,8 +187,8 @@ export default function AnimeDetailsPage() {
 
       setWatchError(
         backendFieldError ||
-        err.message ||
-        "Failed to update watchlist."
+          err.message ||
+          "Failed to update watchlist."
       );
     } finally {
       setWatchLoading(false);
@@ -210,214 +213,196 @@ export default function AnimeDetailsPage() {
   }
 
   if (loading) {
-    return <p>Loading anime details...</p>;
+    return <LoadingState message="Loading anime details..." />;
   }
 
   if (error) {
-    return <p>Error: {error}</p>;
+    return (
+      <div className={styles.pageFeedback}>
+        <div className={styles.errorBox}>Error: {error}</div>
+      </div>
+    );
   }
 
   if (!anime) {
-    return <p>Anime not found.</p>;
+    return (
+      <div className={styles.pageFeedback}>
+        <EmptyState
+          title="Anime not found"
+          message="The anime you tried to open could not be found."
+        />
+      </div>
+    );
   }
 
+  const hasRating = Number(anime.averageRating) > 0;
+
   return (
-    <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-      <Link
-        to="/browse"
-        style={{
-          display: "inline-block",
-          marginBottom: "20px",
-          textDecoration: "none",
-        }}
-      >
+    <div className={styles.root}>
+      <Link to="/browse" className={styles.backLink}>
         ← Back to Browse
       </Link>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "280px 1fr",
-          gap: "24px",
-          alignItems: "start",
-        }}
-      >
-        <div>
+      <section className={styles.hero}>
+        <div className={styles.posterWrap}>
           <img
             src={anime.imageUrl}
             alt={anime.title}
-            style={{
-              width: "100%",
-              borderRadius: "10px",
-              objectFit: "cover",
-              border: "1px solid #ddd",
-            }}
+            className={styles.poster}
           />
         </div>
 
-        <div>
-          <h1 style={{ marginTop: 0 }}>{anime.title}</h1>
+        <div className={styles.heroContent}>
+          <div className={styles.titleBlock}>
+            <h1 className={styles.title}>{anime.title}</h1>
 
-          <p style={{ marginBottom: "12px", color: "#555" }}>
-            <strong>Global rating:</strong>{" "}
-            {Number(anime.averageRating) === 0
-              ? "No ratings yet"
-              : anime.averageRating}
-          </p>
+            <div className={styles.metaRow}>
+              <span className={styles.metaPill}>
+                {hasRating
+                  ? `Global rating: ${Number(anime.averageRating).toFixed(1)}`
+                  : "No ratings yet"}
+              </span>
 
-          <div style={{ marginBottom: "16px" }}>
-            <strong>Genres:</strong>
-            <div
-              style={{
-                display: "flex",
-                gap: "8px",
-                flexWrap: "wrap",
-                marginTop: "8px",
-              }}
-            >
+              <span
+                className={`${styles.metaPill} ${styles.metaPillMuted}`}
+              >
+                {comments.length} comment{comments.length === 1 ? "" : "s"}
+              </span>
+            </div>
+          </div>
+
+          <div className={styles.genreSection}>
+            <p className={styles.sectionLabel}>Genres</p>
+
+            <div className={styles.genreList}>
               {anime.genres.length > 0 ? (
                 anime.genres.map((genre) => (
-                  <span
-                    key={genre.id}
-                    style={{
-                      padding: "6px 10px",
-                      border: "1px solid #ccc",
-                      borderRadius: "999px",
-                      fontSize: "14px",
-                    }}
-                  >
+                  <span key={genre.id} className={styles.genreChip}>
                     {genre.name}
                   </span>
                 ))
               ) : (
-                <span>No genres</span>
+                <span className={styles.genreChip}>No genres</span>
               )}
             </div>
           </div>
 
-          <div style={{ marginBottom: "24px" }}>
-            <strong>Synopsis:</strong>
-            <p style={{ lineHeight: "1.6" }}>
+          <div className={styles.synopsisCard}>
+            <p className={styles.sectionLabel}>Synopsis</p>
+            <p className={styles.synopsisText}>
               {anime.synopsis || "No synopsis available."}
             </p>
           </div>
+        </div>
+      </section>
 
-          <div
-            style={{
-              borderTop: "1px solid #eee",
-              paddingTop: "20px",
-            }}
-          >
-            <h2 style={{ marginTop: 0, marginBottom: "16px" }}>Comments</h2>
+      <div className={styles.contentGrid}>
+        <section className={styles.commentsCard}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Comments</h2>
+            <span className={styles.sectionDescription}>
+              Read what other viewers think
+            </span>
+          </div>
 
-            {auth.user ? (
-              <div style={{ marginBottom: "20px" }}>
-                <CommentForm onSubmit={handleCreateComment} />
+          {auth.user ? (
+            <CommentForm onSubmit={handleCreateComment} />
+          ) : (
+            <div className={styles.infoBox}>Log in to comment.</div>
+          )}
+
+          {commentsLoading && <LoadingState message="Loading comments..." compact />}
+
+          {commentsError && (
+            <div className={styles.errorBox}>Error: {commentsError}</div>
+          )}
+
+          {!commentsLoading && !commentsError && comments.length === 0 && (
+            <EmptyState
+              compact
+              title="No comments yet"
+              message="Be the first to share your thoughts about this anime."
+            />
+          )}
+
+          {!commentsLoading && !commentsError && comments.length > 0 && (
+            <CommentList comments={comments} />
+          )}
+        </section>
+
+        <aside className={styles.watchlistCard}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>My watchlist</h2>
+            <span className={styles.sectionDescription}>
+              Save your personal status and rating
+            </span>
+          </div>
+
+          {!auth.user ? (
+            <div className={styles.infoBox}>
+              Log in to add this anime to your watchlist.
+            </div>
+          ) : (
+            <div className={styles.watchFields}>
+              {watchError && (
+                <div className={styles.errorBox}>Error: {watchError}</div>
+              )}
+
+              <div className={styles.watchFieldGrid}>
+                <div className={styles.watchField}>
+                  <label className={styles.sectionLabel}>Status</label>
+                  <WatchStatusSelect
+                    value={watchStatus}
+                    disabled={watchLoading}
+                    onChange={setWatchStatus}
+                  />
+                </div>
+
+                <div className={styles.watchField}>
+                  <label className={styles.sectionLabel}>Personal rating</label>
+                  <RatingInput
+                    value={personalRating}
+                    disabled={watchLoading}
+                    onChange={setPersonalRating}
+                  />
+                </div>
               </div>
-            ) : (
-              <p style={{ marginBottom: "20px", color: "#555" }}>
-                Log in to comment.
-              </p>
-            )}
 
-            {commentsLoading && <p>Loading comments...</p>}
-
-            {commentsError && (
-              <p style={{ color: "crimson" }}>Error: {commentsError}</p>
-            )}
-
-            {!commentsLoading && !commentsError && (
-              <CommentList comments={comments} />
-            )}
-
-            <div
-              style={{
-                marginTop: "24px",
-                borderTop: "1px solid #eee",
-                paddingTop: "20px",
-              }}
-            >
-              <h2 style={{ marginTop: 0, marginBottom: "16px" }}>My watchlist</h2>
-
-              {!auth.user ? (
-                <p style={{ margin: 0, color: "#555" }}>
-                  Log in to add this anime to your watchlist.
-                </p>
-              ) : (
-                <>
-                  {watchError && (
-                    <p style={{ color: "crimson", marginBottom: "12px" }}>
-                      Error: {watchError}
-                    </p>
-                  )}
-
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "12px",
-                      flexWrap: "wrap",
-                      alignItems: "end",
-                      marginBottom: "12px",
-                    }}
+              {watchEntry ? (
+                <div className={styles.watchActions}>
+                  <button
+                    type="button"
+                    onClick={handleUpdateWatchlist}
+                    disabled={watchLoading}
+                    className={styles.primaryButton}
                   >
-                    <div>
-                      <label
-                        style={{
-                          display: "block",
-                          marginBottom: "6px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Status
-                      </label>
-                      <WatchStatusSelect
-                        value={watchStatus}
-                        disabled={watchLoading}
-                        onChange={setWatchStatus}
-                      />
-                    </div>
+                    {watchLoading ? "Saving..." : "Update watchlist"}
+                  </button>
 
-                    <div>
-                      <label
-                        style={{
-                          display: "block",
-                          marginBottom: "6px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Personal rating
-                      </label>
-                      <RatingInput
-                        value={personalRating}
-                        disabled={watchLoading}
-                        onChange={setPersonalRating}
-                      />
-                    </div>
-                  </div>
-
-                  {watchEntry ? (
-                    <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-                      <button onClick={handleUpdateWatchlist} disabled={watchLoading}>
-                        {watchLoading ? "Saving..." : "Update watchlist"}
-                      </button>
-
-                      <button
-                        onClick={handleRemoveFromWatchlist}
-                        disabled={watchLoading}
-                      >
-                        {watchLoading ? "Working..." : "Remove from watchlist"}
-                      </button>
-                    </div>
-                  ) : (
-                    <button onClick={handleAddToWatchlist} disabled={watchLoading}>
-                      {watchLoading ? "Adding..." : "Add to watchlist"}
-                    </button>
-                  )}
-                </>
+                  <button
+                    type="button"
+                    onClick={handleRemoveFromWatchlist}
+                    disabled={watchLoading}
+                    className={styles.dangerButton}
+                  >
+                    {watchLoading ? "Working..." : "Remove from watchlist"}
+                  </button>
+                </div>
+              ) : (
+                <div className={styles.watchActions}>
+                  <button
+                    type="button"
+                    onClick={handleAddToWatchlist}
+                    disabled={watchLoading}
+                    className={styles.primaryButton}
+                  >
+                    {watchLoading ? "Adding..." : "Add to watchlist"}
+                  </button>
+                </div>
               )}
             </div>
-          </div>
-        </div>
+          )}
+        </aside>
       </div>
     </div>
   );

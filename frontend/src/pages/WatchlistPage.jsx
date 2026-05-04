@@ -10,10 +10,11 @@ import WatchStatusSelect from "../components/WatchStatusSelect";
 import RatingInput from "../components/RatingInput";
 import LoadingState from "../components/LoadingState";
 import EmptyState from "../components/EmptyState";
+import styles from "./WatchlistPage.module.css";
 
 export default function WatchlistPage() {
   useDocumentTitle("My Watchlist");
-  
+
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -46,6 +47,14 @@ export default function WatchlistPage() {
     return entries.filter((entry) => entry.status === statusFilter);
   }, [entries, statusFilter]);
 
+  const totalCount = entries.length;
+  const watchLaterCount = entries.filter(
+    (entry) => entry.status === "WATCH_LATER"
+  ).length;
+  const completedCount = entries.filter(
+    (entry) => entry.status === "COMPLETED"
+  ).length;
+
   async function handleStatusChange(animeId, nextStatus, currentPersonalRating) {
     setSavingAnimeId(animeId);
 
@@ -60,11 +69,7 @@ export default function WatchlistPage() {
       const backendFieldError =
         err.validationErrors?.status || err.validationErrors?.personalRating;
 
-      setError(
-        backendFieldError ||
-        err.message ||
-        "Failed to update status."
-      );
+      setError(backendFieldError || err.message || "Failed to update status.");
     } finally {
       setSavingAnimeId(null);
     }
@@ -100,11 +105,7 @@ export default function WatchlistPage() {
       const backendFieldError =
         err.validationErrors?.personalRating || err.validationErrors?.status;
 
-      setError(
-        backendFieldError ||
-        err.message ||
-        "Failed to update rating."
-      );
+      setError(backendFieldError || err.message || "Failed to update rating.");
     } finally {
       setSavingAnimeId(null);
     }
@@ -129,30 +130,77 @@ export default function WatchlistPage() {
   }
 
   return (
-    <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
-      <h1>My Watchlist</h1>
-
-      <div
-        style={{
-          display: "flex",
-          gap: "12px",
-          flexWrap: "wrap",
-          marginBottom: "20px",
-          alignItems: "center",
-        }}
-      >
-        <strong>Filter:</strong>
-
-        <button onClick={() => setStatusFilter("ALL")}>All</button>
-        <button onClick={() => setStatusFilter("WATCH_LATER")}>Watch later</button>
-        <button onClick={() => setStatusFilter("COMPLETED")}>Completed</button>
-      </div>
-
-      {error && (
-        <p style={{ color: "crimson", marginBottom: "16px" }}>
-          Error: {error}
+    <div className={styles.root}>
+      <section className={styles.header}>
+        <h1 className={styles.title}>My Watchlist</h1>
+        <p className={styles.description}>
+          Track what you still want to watch, what you have completed, and the
+          personal ratings you have given.
         </p>
-      )}
+      </section>
+
+      <section className={styles.summaryGrid}>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Total entries</span>
+          <span className={styles.summaryValue}>{totalCount}</span>
+        </div>
+
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Watch later</span>
+          <span className={styles.summaryValue}>{watchLaterCount}</span>
+        </div>
+
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Completed</span>
+          <span className={styles.summaryValue}>{completedCount}</span>
+        </div>
+      </section>
+
+      <section className={styles.filtersCard}>
+        <div className={styles.filtersHeader}>
+          <div>
+            <h2 className={styles.filtersTitle}>Filter entries</h2>
+            <p className={styles.filtersDescription}>
+              Switch between all items, planned shows, and completed ones.
+            </p>
+          </div>
+
+          <span className={styles.resultsText}>
+            {filteredEntries.length} item{filteredEntries.length === 1 ? "" : "s"}
+          </span>
+        </div>
+
+        <div className={styles.tabRow}>
+          <button
+            type="button"
+            onClick={() => setStatusFilter("ALL")}
+            className={`${styles.tab} ${statusFilter === "ALL" ? styles.tabActive : ""
+              }`}
+          >
+            All
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStatusFilter("WATCH_LATER")}
+            className={`${styles.tab} ${statusFilter === "WATCH_LATER" ? styles.tabActive : ""
+              }`}
+          >
+            Watch later
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStatusFilter("COMPLETED")}
+            className={`${styles.tab} ${statusFilter === "COMPLETED" ? styles.tabActive : ""
+              }`}
+          >
+            Completed
+          </button>
+        </div>
+      </section>
+
+      {error ? <div className={styles.errorBox}>Error: {error}</div> : null}
 
       {filteredEntries.length === 0 ? (
         <EmptyState
@@ -160,74 +208,70 @@ export default function WatchlistPage() {
           message="Your watchlist is empty for this filter."
         />
       ) : (
-        <div style={{ display: "grid", gap: "16px" }}>
+        <section className={styles.list}>
           {filteredEntries.map((entry) => {
-            const anime = entry.anime;
-            const isSaving = savingAnimeId === anime.id;
+            const anime = {
+              id: entry.animeId,
+              title: entry.title,
+              imageUrl: entry.imageUrl,
+              averageRating: entry.averageRating,
+            };
 
+            const isSaving = savingAnimeId === anime.id;
+            const hasGlobalRating = Number(anime.averageRating) > 0;
             return (
-              <div
+              <article
                 key={entry.id ?? anime.id}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "140px 1fr",
-                  gap: "16px",
-                  border: "1px solid #ddd",
-                  borderRadius: "10px",
-                  padding: "16px",
-                  backgroundColor: "#fff",
-                }}
+                className={styles.entryCard}
               >
-                <Link to={`/anime/${anime.id}`}>
-                  <img
-                    src={anime.imageUrl}
-                    alt={anime.title}
-                    style={{
-                      width: "100%",
-                      height: "200px",
-                      objectFit: "cover",
-                      borderRadius: "8px",
-                      border: "1px solid #ddd",
-                    }}
-                  />
+                <Link
+                  to={`/anime/${anime.id}`}
+                  className={styles.posterLink}
+                >
+                  <div className={styles.posterWrap}>
+                    <img
+                      src={anime.imageUrl}
+                      alt={anime.title}
+                      className={styles.poster}
+                    />
+                  </div>
                 </Link>
 
-                <div>
-                  <Link
-                    to={`/anime/${anime.id}`}
-                    style={{ textDecoration: "none", color: "inherit" }}
-                  >
-                    <h2 style={{ marginTop: 0, marginBottom: "10px" }}>
-                      {anime.title}
-                    </h2>
-                  </Link>
+                <div className={styles.entryBody}>
+                  <div className={styles.entryHeader}>
+                    <Link
+                      to={`/anime/${anime.id}`}
+                      className={styles.titleLink}
+                    >
+                      <h2 className={styles.entryTitle}>{anime.title}</h2>
+                    </Link>
 
-                  <p style={{ marginTop: 0, color: "#555" }}>
-                    Global rating:{" "}
-                    {Number(anime.averageRating) === 0
-                      ? "No ratings yet"
-                      : anime.averageRating}
-                  </p>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "12px",
-                      flexWrap: "wrap",
-                      alignItems: "center",
-                      marginBottom: "12px",
-                    }}
-                  >
-                    <div>
-                      <label
-                        style={{
-                          display: "block",
-                          marginBottom: "6px",
-                          fontWeight: "bold",
-                        }}
+                    <div className={styles.metaRow}>
+                      <span
+                        className={`${styles.metaPill} ${styles.metaPillAccent}`}
                       >
-                        Status
-                      </label>
+                        {entry.status === "WATCH_LATER"
+                          ? "Watch later"
+                          : "Completed"}
+                      </span>
+
+                      <span className={styles.metaPill}>
+                        {hasGlobalRating
+                          ? `Global rating: ${Number(anime.averageRating).toFixed(1)}`
+                          : "No ratings yet"}
+                      </span>
+
+                      <span className={styles.metaPill}>
+                        {entry.personalRating
+                          ? `Your rating: ${entry.personalRating}`
+                          : "No personal rating"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className={styles.fieldsGrid}>
+                    <div className={styles.field}>
+                      <label className={styles.fieldLabel}>Status</label>
                       <WatchStatusSelect
                         value={entry.status}
                         disabled={isSaving}
@@ -241,16 +285,8 @@ export default function WatchlistPage() {
                       />
                     </div>
 
-                    <div>
-                      <label
-                        style={{
-                          display: "block",
-                          marginBottom: "6px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Personal rating
-                      </label>
+                    <div className={styles.field}>
+                      <label className={styles.fieldLabel}>Personal rating</label>
                       <RatingInput
                         value={entry.personalRating ?? ""}
                         disabled={isSaving}
@@ -261,14 +297,21 @@ export default function WatchlistPage() {
                     </div>
                   </div>
 
-                  <button onClick={() => handleRemove(anime.id)} disabled={isSaving}>
-                    {isSaving ? "Working..." : "Remove from watchlist"}
-                  </button>
+                  <div className={styles.actions}>
+                    <button
+                      type="button"
+                      onClick={() => handleRemove(anime.id)}
+                      disabled={isSaving}
+                      className={styles.removeButton}
+                    >
+                      {isSaving ? "Working..." : "Remove from watchlist"}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </article>
             );
           })}
-        </div>
+        </section>
       )}
     </div>
   );
