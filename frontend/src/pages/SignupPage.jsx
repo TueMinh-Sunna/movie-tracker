@@ -3,9 +3,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../api/authApi";
 import { validateSignupForm } from "../utils/validation";
+import styles from "./AuthPage.module.css";
 
 export default function SignupPage() {
   useDocumentTitle("Sign up");
+
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
@@ -53,109 +55,127 @@ export default function SignupPage() {
   }
 
   return (
-    <div style={{ maxWidth: "420px", margin: "0 auto" }}>
-      <h1>Sign up</h1>
-
-      <form onSubmit={handleSubmit} noValidate>
-        <div style={{ marginBottom: "12px" }}>
-          <label style={{ display: "block", marginBottom: "6px" }}>
-            Username
-          </label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => {
-              setUsername(e.target.value);
-              setFieldErrors((current) => ({ ...current, username: "" }));
-            }}
-            style={{ width: "100%", padding: "10px" }}
-          />
-          {fieldErrors.username && (
-            <p style={{ color: "crimson", margin: "6px 0 0" }}>
-              {fieldErrors.username}
-            </p>
-          )}
+    <div className={styles.root}>
+      <section className={styles.card}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Sign up</h1>
+          <p className={styles.description}>
+            Create an account to save anime, rate titles, and join comments.
+          </p>
         </div>
 
-        <div style={{ marginBottom: "12px" }}>
-          <label style={{ display: "block", marginBottom: "6px" }}>
-            Email
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setFieldErrors((current) => ({ ...current, email: "" }));
-            }}
-            style={{ width: "100%", padding: "10px" }}
-          />
-          {fieldErrors.email && (
-            <p style={{ color: "crimson", margin: "6px 0 0" }}>
-              {fieldErrors.email}
-            </p>
-          )}
-        </div>
+        <form onSubmit={handleSubmit} noValidate className={styles.form}>
+          <div className={styles.field}>
+            <label htmlFor="signup-username" className={styles.label}>
+              Username
+            </label>
 
-        <div style={{ marginBottom: "12px" }}>
-          <label style={{ display: "block", marginBottom: "6px" }}>
-            Password
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              setFieldErrors((current) => ({
-                ...current,
-                password: "",
-                confirmPassword: "",
-              }));
-            }}
-            style={{ width: "100%", padding: "10px" }}
-          />
-          {fieldErrors.password && (
-            <p style={{ color: "crimson", margin: "6px 0 0" }}>
-              {fieldErrors.password}
-            </p>
-          )}
-        </div>
+            <input
+              id="signup-username"
+              type="text"
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                setFieldErrors((current) => ({ ...current, username: "" }));
+              }}
+              className={styles.input}
+            />
 
-        <div style={{ marginBottom: "12px" }}>
-          <label style={{ display: "block", marginBottom: "6px" }}>
-            Confirm password
-          </label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => {
-              setConfirmPassword(e.target.value);
-              setFieldErrors((current) => ({
-                ...current,
-                confirmPassword: "",
-              }));
-            }}
-            style={{ width: "100%", padding: "10px" }}
-          />
-          {fieldErrors.confirmPassword && (
-            <p style={{ color: "crimson", margin: "6px 0 0" }}>
-              {fieldErrors.confirmPassword}
-            </p>
-          )}
-        </div>
+            {fieldErrors.username ? (
+              <div className={styles.fieldError}>{fieldErrors.username}</div>
+            ) : null}
+          </div>
 
-        {error && (
-          <p style={{ color: "crimson", marginBottom: "12px" }}>{error}</p>
-        )}
+          <div className={styles.field}>
+            <label htmlFor="signup-email" className={styles.label}>
+              Email
+            </label>
 
-        <button type="submit" disabled={submitting} style={{ padding: "10px 16px" }}>
-          {submitting ? "Creating account..." : "Sign up"}
-        </button>
-      </form>
+            <input
+              id="signup-email"
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setFieldErrors((current) => ({ ...current, email: "" }));
+              }}
+              className={styles.input}
+            />
 
-      <p style={{ marginTop: "16px" }}>
-        Already have an account? <Link to="/login">Go to Login</Link>
-      </p>
+            {fieldErrors.email ? (
+              <div className={styles.fieldError}>{fieldErrors.email}</div>
+            ) : null}
+          </div>
+
+          <div className={styles.field}>
+            <label htmlFor="signup-password" className={styles.label}>
+              Password
+            </label>
+
+            <input
+              id="signup-password"
+              type="password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setFieldErrors((current) => ({
+                  ...current,
+                  password: "",
+                  confirmPassword: "",
+                }));
+              }}
+              className={styles.input}
+            />
+
+            {fieldErrors.password ? (
+              <div className={styles.fieldError}>{fieldErrors.password}</div>
+            ) : null}
+          </div>
+
+          <div className={styles.field}>
+            <label htmlFor="signup-confirm-password" className={styles.label}>
+              Confirm password
+            </label>
+
+            <input
+              id="signup-confirm-password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                setFieldErrors((current) => ({
+                  ...current,
+                  confirmPassword: "",
+                }));
+              }}
+              className={styles.input}
+            />
+
+            {fieldErrors.confirmPassword ? (
+              <div className={styles.fieldError}>
+                {fieldErrors.confirmPassword}
+              </div>
+            ) : null}
+          </div>
+
+          {error ? <div className={styles.error}>{error}</div> : null}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className={styles.submitButton}
+          >
+            {submitting ? "Creating account..." : "Sign up"}
+          </button>
+        </form>
+
+        <p className={styles.footer}>
+          Already have an account?{" "}
+          <Link to="/login" className={styles.link}>
+            Go to Login
+          </Link>
+        </p>
+      </section>
     </div>
   );
 }
