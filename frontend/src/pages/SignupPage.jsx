@@ -76,6 +76,7 @@ export default function SignupPage() {
             <input
               id="signup-username"
               type="text"
+              autoFocus
               value={username}
               onChange={(e) => {
                 setUsername(e.target.value);

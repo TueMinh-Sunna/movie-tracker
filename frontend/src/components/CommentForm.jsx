@@ -34,7 +34,10 @@ export default function CommentForm({ onSubmit }) {
   }
 
   const characterCount = content.length;
+  const maxLength = 1000;
 
+  const isNearLimit = characterCount > 900;
+  const isOverLimit = characterCount > maxLength;
   return (
     <form onSubmit={handleSubmit} noValidate className={styles.form}>
       <div className={styles.field}>
@@ -56,6 +59,11 @@ export default function CommentForm({ onSubmit }) {
           placeholder="Share your thoughts about this anime..."
           className={styles.textarea}
         />
+        {isOverLimit && (
+          <div className={styles.error}>
+            Comment exceeds 1000 characters.
+          </div>
+        )}
 
         {fieldErrors.content ? (
           <div className={styles.error}>{fieldErrors.content}</div>
@@ -65,11 +73,20 @@ export default function CommentForm({ onSubmit }) {
       {error ? <div className={styles.error}>{error}</div> : null}
 
       <div className={styles.actions}>
-        <span className={styles.counter}>{characterCount}/1000</span>
+        <span
+          className={`${styles.counter} ${isOverLimit
+            ? styles.counterError
+            : isNearLimit
+              ? styles.counterWarning
+              : ""
+            }`}
+        >
+          {characterCount}/{maxLength}
+        </span>
 
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || isOverLimit || characterCount === 0}
           className={styles.submitButton}
         >
           {submitting ? "Posting..." : "Post comment"}

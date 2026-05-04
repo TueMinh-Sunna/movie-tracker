@@ -77,6 +77,7 @@ export default function LoginPage() {
             <input
               id="login-username"
               type="text"
+              autoFocus
               value={usernameOrEmail}
               onChange={(e) => {
                 setUsernameOrEmail(e.target.value);

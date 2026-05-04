@@ -40,6 +40,7 @@ export default function AnimeDetailsPage() {
   const [watchError, setWatchError] = useState("");
   const [watchStatus, setWatchStatus] = useState("WATCH_LATER");
   const [personalRating, setPersonalRating] = useState("");
+  const [isSynopsisExpanded, setIsSynopsisExpanded] = useState(false);
 
   async function loadComments() {
     setCommentsLoading(true);
@@ -237,6 +238,12 @@ export default function AnimeDetailsPage() {
   }
 
   const hasRating = Number(anime.averageRating) > 0;
+  const synopsis = anime.synopsis || "No synopsis available.";
+  const shouldCollapseSynopsis = synopsis.length > 280;
+  const visibleSynopsis =
+    shouldCollapseSynopsis && !isSynopsisExpanded
+      ? `${synopsis.slice(0, 280).trim()}...`
+      : synopsis;
 
   return (
     <div className={styles.root}>
@@ -255,7 +262,9 @@ export default function AnimeDetailsPage() {
 
         <div className={styles.heroContent}>
           <div className={styles.titleBlock}>
-            <h1 className={styles.title}>{anime.title}</h1>
+            <h1 className={styles.title}>
+              {anime.title}{" "}
+              </h1>
 
             <div className={styles.metaRow}>
               <span className={styles.metaPill}>
@@ -290,9 +299,18 @@ export default function AnimeDetailsPage() {
 
           <div className={styles.synopsisCard}>
             <p className={styles.sectionLabel}>Synopsis</p>
-            <p className={styles.synopsisText}>
-              {anime.synopsis || "No synopsis available."}
-            </p>
+            <p className={styles.synopsisText}>{visibleSynopsis}</p>
+
+            {shouldCollapseSynopsis ? (
+              <button
+                type="button"
+                onClick={() => setIsSynopsisExpanded((current) => !current)}
+                className={styles.synopsisToggle}
+                aria-expanded={isSynopsisExpanded}
+              >
+                {isSynopsisExpanded ? "Show less" : "Read more"}
+              </button>
+            ) : null}
           </div>
         </div>
       </section>

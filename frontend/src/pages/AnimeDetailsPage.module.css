@@ -289,6 +289,7 @@
 }
 
 @media (max-width: 720px) {
+
   .hero,
   .commentsCard,
   .watchlistCard,
@@ -305,4 +306,23 @@
   .dangerButton {
     width: 100%;
   }
+}
+
+.synopsisToggle {
+  justify-self: start;
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-accent);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.synopsisToggle:hover {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-hover);
 }

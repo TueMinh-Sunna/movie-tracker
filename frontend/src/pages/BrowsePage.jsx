@@ -62,19 +62,26 @@ export default function BrowsePage() {
 
   const resultsLabel = useMemo(() => {
     if (loading) {
-      return "Loading results...";
+      return "Searching anime...";
     }
 
     if (error) {
       return "Could not load results.";
     }
 
-    if (animeList.length === 0) {
-      return "No anime found.";
+    const count = animeList.length;
+    const noun = count === 1 ? "anime" : "anime";
+
+    if (!hasActiveFilters) {
+      return `${count} ${noun} available`;
     }
 
-    return `${animeList.length} anime found`;
-  }, [loading, error, animeList]);
+    if (count === 0) {
+      return "No anime match your filters";
+    }
+
+    return `${count} ${noun} match your filters`;
+  }, [loading, error, animeList.length, hasActiveFilters]);
 
   function handleClearFilters() {
     setSearch("");
@@ -112,7 +119,7 @@ export default function BrowsePage() {
               onClick={handleClearFilters}
               className={styles.clearButton}
             >
-              Clear filters
+              Reset search and filters
             </button>
           ) : null}
         </div>
