@@ -6,7 +6,7 @@
 .scale {
   display: grid;
   grid-template-columns: repeat(10, minmax(0, 1fr));
-  gap: 6px;
+  gap: 11px;
 }
 
 .watchFields {
@@ -56,9 +56,8 @@
 }
 
 .clearButton {
-  justify-self: start;
+  justify-self: end;
   min-height: 34px;
-  /* padding: 0 var(--space-3); */
   border-radius: var(--radius-pill);
   color: var(--color-text-soft);
   font-size: var(--font-size-small);
