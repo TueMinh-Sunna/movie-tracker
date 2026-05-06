@@ -9,7 +9,6 @@ import SearchBar from "../components/SearchBar";
 import GenreFilter from "../components/GenreFilter";
 import SortSelect from "../components/SortSelect";
 import EmptyState from "../components/EmptyState";
-import WatchLaterButton from "../components/WatchLaterButton";
 import { authState } from "../state/authState";
 import useDebouncedValue from "../hooks/useDebouncedValue";
 import {
@@ -33,8 +32,6 @@ export default function BrowsePage() {
   const sort = searchParams.get("sort") ?? DEFAULT_SORT;
 
   const debouncedSearch = useDebouncedValue(search, 300);
-
-  const [filtersReady, setFiltersReady] = useState(false);
 
   const [animeList, setAnimeList] = useState([]);
   const [genres, setGenres] = useState([]);
@@ -83,7 +80,7 @@ export default function BrowsePage() {
     const numericAnimeId = Number(animeId);
 
     if (watchlistAnimeIds.has(numericAnimeId)) {
-      setWatchlistMessage("Already saved to Watch later.");
+      setWatchlistMessage("This anime is already in your watchlist.");
       return;
     }
 
@@ -103,7 +100,7 @@ export default function BrowsePage() {
         return nextIds;
       });
 
-      setWatchlistMessage("Saved to Watch later.");
+      setWatchlistMessage("Added to watchlist.");
     } catch (err) {
       const message = String(err.message || "").toLowerCase();
 
@@ -120,9 +117,9 @@ export default function BrowsePage() {
           return nextIds;
         });
 
-        setWatchlistMessage("Already saved to Watch later.");
+        setWatchlistMessage("This anime is already in your watchlist.");
       } else {
-        setWatchlistMessage(err.message || "Failed to save anime.");
+        setWatchlistMessage(err.message || "Failed to add to watchlist.");
       }
     } finally {
       setAddingAnimeId(null);
@@ -130,19 +127,13 @@ export default function BrowsePage() {
   }
 
   useEffect(() => {
-    if (filtersReady) {
-      return;
-    }
-
     if (searchParams.toString()) {
-      setFiltersReady(true);
       return;
     }
 
     const savedFilters = readLocalStorage(BROWSE_FILTERS_STORAGE_KEY, null);
 
     if (!savedFilters) {
-      setFiltersReady(true);
       return;
     }
 
@@ -162,22 +153,16 @@ export default function BrowsePage() {
 
     if (nextParams.toString()) {
       setSearchParams(nextParams, { replace: true });
-    } else {
-      setFiltersReady(true);
     }
-  }, [filtersReady, searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
-    if (!filtersReady) {
-      return;
-    }
-
     writeLocalStorage(BROWSE_FILTERS_STORAGE_KEY, {
       search,
       genre: selectedGenre,
       sort,
     });
-  }, [filtersReady, search, selectedGenre, sort]);
+  }, [search, selectedGenre, sort]);
 
   useEffect(() => {
     async function loadGenres() {
@@ -204,11 +189,15 @@ export default function BrowsePage() {
 
       try {
         const entries = await getWatchlist();
-        const nextIds = new Set(entries.map((entry) => Number(entry.animeId)));
+
+        const nextIds = new Set(
+          entries.map((entry) => Number(entry.animeId))
+        );
+
         setWatchlistAnimeIds(nextIds);
       } catch (err) {
         setWatchlistMessage(
-          err.message || "Failed to load your saved anime status."
+          err.message || "Failed to load your watchlist status."
         );
       } finally {
         setWatchlistLoading(false);
@@ -219,10 +208,6 @@ export default function BrowsePage() {
   }, [auth.user]);
 
   useEffect(() => {
-    if (!filtersReady) {
-      return;
-    }
-
     async function loadAnime() {
       setLoading(true);
       setError("");
@@ -243,7 +228,7 @@ export default function BrowsePage() {
     }
 
     loadAnime();
-  }, [filtersReady, debouncedSearch, selectedGenre, sort]);
+  }, [debouncedSearch, selectedGenre, sort]);
 
   const hasActiveFilters =
     search.trim() || selectedGenre || sort !== DEFAULT_SORT;
@@ -258,16 +243,17 @@ export default function BrowsePage() {
     }
 
     const count = animeList.length;
+    const noun = count === 1 ? "anime" : "anime";
 
     if (!hasActiveFilters) {
-      return `${count} anime available`;
+      return `${count} ${noun} available`;
     }
 
     if (count === 0) {
       return "No anime match your filters";
     }
 
-    return `${count} anime match your filters`;
+    return `${count} ${noun} match your filters`;
   }, [loading, error, animeList.length, hasActiveFilters]);
 
   return (
@@ -275,8 +261,8 @@ export default function BrowsePage() {
       <section className={styles.header}>
         <h1 className={styles.title}>Browse Anime</h1>
         <p className={styles.description}>
-          Search by title, filter by genre, and save anime to your Watch later
-          list.
+          Search by title, narrow the list by genre, and sort titles by rating
+          or name to quickly find something to watch.
         </p>
       </section>
 
@@ -328,7 +314,7 @@ export default function BrowsePage() {
           <div className={styles.grid}>
             {animeList.map((anime) => {
               const animeId = Number(anime.id);
-              const isSaved = watchlistAnimeIds.has(animeId);
+              const isInWatchlist = watchlistAnimeIds.has(animeId);
               const isAdding = addingAnimeId === animeId;
 
               return (
@@ -337,16 +323,20 @@ export default function BrowsePage() {
                   anime={anime}
                   actions={
                     auth.user ? (
-                      <WatchLaterButton
-                        isSaved={isSaved}
-                        isLoading={isAdding}
-                        disabled={watchlistLoading}
+                      <button
+                        type="button"
                         onClick={() => handleQuickAdd(animeId)}
-                        variant="card"
-                        defaultLabel="Watch later"
-                        savedLabel="Saved"
-                        loadingLabel="Saving..."
-                      />
+                        disabled={isAdding || isInWatchlist || watchlistLoading}
+                        className={`${styles.quickAddButton} ${
+                          isInWatchlist ? styles.quickAddButtonSaved : ""
+                        }`}
+                      >
+                        {isAdding
+                          ? "Adding..."
+                          : isInWatchlist
+                            ? "In watchlist"
+                            : "Add to watchlist"}
+                      </button>
                     ) : null
                   }
                 />

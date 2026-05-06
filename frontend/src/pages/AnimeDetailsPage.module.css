@@ -278,7 +278,7 @@
   gap: var(--space-4);
 }
 
-@media (max-width: 960px) {
+@media (max-width: 585px) {
   .hero {
     grid-template-columns: 1fr;
   }
