@@ -22,7 +22,8 @@
   max-width: 760px;
 }
 
-.eyebrow {
+.eyebrow,
+.sectionEyebrow {
   display: inline-flex;
   align-items: center;
   width: fit-content;
@@ -57,7 +58,10 @@
 
 .primaryAction,
 .secondaryAction,
-.ghostAction {
+.ghostAction,
+.watchAction,
+.moreAction,
+.viewAllLink {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -74,26 +78,30 @@
     transform var(--transition-fast);
 }
 
-.primaryAction {
+.primaryAction,
+.watchAction {
   background: var(--color-accent);
   color: var(--color-accent-contrast);
   box-shadow: var(--shadow-sm);
 }
 
-.primaryAction:hover {
+.primaryAction:hover,
+.watchAction:hover {
   background: var(--color-accent-hover);
   box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
 
-.secondaryAction {
+.secondaryAction,
+.moreAction {
   background: var(--color-surface);
   color: var(--color-text);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
 }
 
-.secondaryAction:hover {
+.secondaryAction:hover,
+.moreAction:hover {
   background: var(--color-surface-hover);
   border-color: var(--color-border-strong);
 }
@@ -126,7 +134,7 @@
   box-shadow: var(--shadow-sm);
 }
 
-.section {
+.featuredSection {
   display: grid;
   gap: var(--space-5);
 }
@@ -154,17 +162,8 @@
 }
 
 .viewAllLink {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--control-height);
-  padding: 0 var(--space-4);
-  border-radius: var(--radius-md);
   color: var(--color-accent);
-  font-weight: var(--font-weight-semibold);
-  text-decoration: none;
-  transition:
-    background var(--transition-fast),
-    color var(--transition-fast);
+  padding: 0 var(--space-4);
 }
 
 .viewAllLink:hover {
@@ -172,10 +171,165 @@
   color: var(--color-accent-hover);
 }
 
-.grid {
+.bannerGrid {
+  height: 100px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: minmax(0, 1fr) 320px;
   gap: var(--space-4);
+  align-items: stretch;
+}
+
+.featuredBanner {
+  position: relative;
+  overflow: hidden;
+  /* min-height: 430px; */
+  border-radius: var(--radius-xl);
+  background: #111827;
+  box-shadow: var(--shadow-lg);
+}
+
+.bannerImage {
+  width: 100%;
+  height: 100%;
+  /* min-height: 430px; */
+  object-fit: cover;
+  transform: scale(1.02);
+}
+
+.bannerOverlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.08)),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.72), transparent 45%);
+}
+
+.bannerContent {
+  position: absolute;
+  left: var(--space-8);
+  right: var(--space-8);
+  bottom: var(--space-8);
+  display: grid;
+  gap: var(--space-4);
+  max-width: 620px;
+}
+
+.bannerRank {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 34px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-rating, #f5c518);
+  color: #111827;
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+}
+
+.bannerTitle {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(2rem, 1.4rem + 2vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-shadow: 0 8px 24px rgba(0, 0, 0, 0.36);
+}
+
+.bannerMeta {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.bannerActions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.bannerList {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.bannerListItem {
+  display: grid;
+  grid-template-columns: 40px 72px minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: center;
+  min-height: 78px;
+  padding: var(--space-2);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.bannerListItem:hover {
+  background: var(--color-surface-hover);
+}
+
+.bannerListItem[data-active="true"] {
+  background: var(--color-accent-soft);
+  box-shadow: var(--shadow-sm);
+}
+
+.listRank {
+  color: var(--color-text-soft);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+}
+
+.listThumb {
+  width: 72px;
+  height: 54px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  background: var(--color-surface-subtle);
+}
+
+.listText {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.listTitle {
+  color: var(--color-text);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.35;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.listRating {
+  color: var(--color-text-soft);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+}
+
+.mobileBannerRail {
+  display: none;
+}
+
+.mobileBannerCard {
+  color: inherit;
+  text-decoration: none;
 }
 
 .errorBox {
@@ -186,7 +340,17 @@
   color: var(--color-danger);
 }
 
-@media (max-width: 720px) {
+@media (max-width: 620px) {
+  .bannerGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .bannerList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 585px) {
   .hero {
     padding: var(--space-8);
   }
@@ -205,7 +369,55 @@
 
   .primaryAction,
   .secondaryAction,
-  .ghostAction {
+  .ghostAction,
+  .watchAction,
+  .moreAction {
     width: 100%;
+  }
+
+  .featuredBanner {
+    min-height: 360px;
+  }
+
+  .bannerImage {
+    min-height: 360px;
+  }
+
+  .bannerContent {
+    left: var(--space-4);
+    right: var(--space-4);
+    bottom: var(--space-4);
+  }
+
+  .bannerList {
+    display: none;
+  }
+
+  .mobileBannerRail {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(180px, 220px);
+    gap: var(--space-3);
+    overflow-x: auto;
+    padding-bottom: var(--space-2);
+  }
+
+  .mobileBannerCard {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .mobileBannerImage {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .mobileBannerText {
+    color: var(--color-text);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-semibold);
   }
 }
