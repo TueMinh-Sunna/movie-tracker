@@ -291,8 +291,15 @@ export default function AnimeDetailsPage() {
                 value={personalRating}
                 personal
                 precision={0}
-                emptyText={auth.user ? "Not rated" : "Log in"}
-              />
+                emptyText={
+                  auth.user ? (
+                    "Not rated"
+                  ) : (
+                    <Link to="/login" className={styles.inlineLink}>
+                      Log in
+                    </Link>
+                  )
+                } />
 
               <span className={styles.commentBadge}>
                 {comments.length} comment{comments.length === 1 ? "" : "s"}
@@ -355,8 +362,12 @@ export default function AnimeDetailsPage() {
           {auth.user ? (
             <CommentForm onSubmit={handleCreateComment} />
           ) : (
-            <div className={styles.infoBox}>Log in to comment.</div>
-          )}
+            <div className={styles.infoBox}>
+              <Link to="/login" className={styles.inlineLink}>
+                Log in
+              </Link>{" "}
+              to comment.
+            </div>)}
 
           {commentsLoading && (
             <LoadingState message="Loading comments..." compact />
@@ -396,8 +407,11 @@ export default function AnimeDetailsPage() {
 
           {!auth.user ? (
             <div className={styles.infoBox}>
-              Log in to save this anime to your Watch later list and add a
-              personal rating.
+              <Link to="/login" className={styles.inlineLink}>
+                Log in
+              </Link>{" "}
+              to save this anime to your Watch later list and add a personal
+              rating.
             </div>
           ) : (
             <div className={styles.watchFields}>

@@ -7,13 +7,14 @@ export default function RatingBadge({
   compact = false,
   precision = 1,
   emptyText = "No rating",
+  light = false,
 }) {
   const numericValue = Number(value);
   const hasRating = Number.isFinite(numericValue) && numericValue > 0;
 
   return (
     <div
-      className={styles.root}
+      className={`${styles.root} ${light ? styles.light : ""}`}
       data-personal={personal ? "true" : "false"}
       data-compact={compact ? "true" : "false"}
     >
@@ -30,8 +31,9 @@ export default function RatingBadge({
             <span className={styles.outOf}>/10</span>
           </>
         ) : (
-          <span className={styles.empty}>{emptyText}</span>
-        )}
+          <span className={styles.empty}>
+            {emptyText}
+          </span>)}
       </span>
     </div>
   );

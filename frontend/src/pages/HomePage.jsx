@@ -161,6 +161,7 @@ export default function HomePage() {
                     label="Global rating"
                     value={featuredAnime.averageRating}
                     emptyText="No rating"
+                    light
                   />
                 </div>
 
