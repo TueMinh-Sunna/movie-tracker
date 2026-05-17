@@ -32,7 +32,7 @@ export default function Footer() {
             <h3 className={styles.groupTitle}>Project</h3>
 
             <a
-              href="https://github.com/your-username/mini-anime-list"
+              href="https://github.com/TueMinh-Sunna/movie-tracker"
               className={styles.link}
               target="_blank"
               rel="noreferrer"

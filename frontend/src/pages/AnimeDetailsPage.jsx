@@ -103,7 +103,10 @@ export default function AnimeDetailsPage() {
           : String(result.personalRating)
       );
     } catch (err) {
-      if (err.message && err.message.toLowerCase().includes("404")) {
+      if (
+        err.status === 404 ||
+        String(err.message || "").toLowerCase().includes("not found")
+      ) {
         setWatchEntry(null);
         setWatchStatus("WATCH_LATER");
         setPersonalRating("");

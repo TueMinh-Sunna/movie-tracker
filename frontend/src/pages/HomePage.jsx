@@ -27,7 +27,7 @@ export default function HomePage() {
 
       try {
         const result = await getAnimeList({ sort: "rating_desc" });
-        setTopAnime(result.slice(0, 6));
+        setTopAnime(result.content.slice(0, 6));
       } catch (err) {
         setError(err.message || "Failed to load top anime.");
       } finally {

@@ -20,6 +20,7 @@ import { AnimeGridSkeleton } from "../components/Skeleton";
 
 const DEFAULT_SORT = "rating_desc";
 const BROWSE_FILTERS_STORAGE_KEY = "miniAnimeListBrowseFilters";
+const PAGE_SIZE = 12;
 
 export default function BrowsePage() {
   useDocumentTitle("Browse");
@@ -30,6 +31,7 @@ export default function BrowsePage() {
   const search = searchParams.get("q") ?? "";
   const selectedGenre = searchParams.get("genre") ?? "";
   const sort = searchParams.get("sort") ?? DEFAULT_SORT;
+  const page = Number(searchParams.get("page") ?? "0");
 
   const debouncedSearch = useDebouncedValue(search, 300);
 
@@ -44,6 +46,16 @@ export default function BrowsePage() {
   const [addingAnimeId, setAddingAnimeId] = useState(null);
   const [watchlistMessage, setWatchlistMessage] = useState("");
 
+  const [pageData, setPageData] = useState({
+    content: [],
+    page: 0,
+    size: PAGE_SIZE,
+    totalElements: 0,
+    totalPages: 0,
+    first: true,
+    last: true,
+  });
+
   function updateBrowseParam(key, value) {
     const nextParams = new URLSearchParams(searchParams);
 
@@ -53,7 +65,31 @@ export default function BrowsePage() {
       nextParams.set(key, value);
     }
 
+    if (key !== "page") {
+      nextParams.delete("page");
+    }
+
     setSearchParams(nextParams);
+  }
+
+  function goToPage(nextPage) {
+    const nextParams = new URLSearchParams(searchParams);
+
+    if (nextPage <= 0) {
+      nextParams.delete("page");
+    } else {
+      nextParams.set("page", String(nextPage));
+    }
+
+    setSearchParams(nextParams);
+  }
+
+  function handlePreviousPage() {
+    goToPage(Math.max(page - 1, 0));
+  }
+
+  function handleNextPage() {
+    goToPage(page + 1);
   }
 
   function handleSearchChange(nextSearch) {
@@ -217,9 +253,12 @@ export default function BrowsePage() {
           search: debouncedSearch,
           genre: selectedGenre,
           sort,
+          page,
+          size: PAGE_SIZE,
         });
 
-        setAnimeList(result);
+        setPageData(result);
+        setAnimeList(result.content);
       } catch (err) {
         setError(err.message || "Failed to load anime.");
       } finally {
@@ -228,7 +267,7 @@ export default function BrowsePage() {
     }
 
     loadAnime();
-  }, [debouncedSearch, selectedGenre, sort]);
+  }, [debouncedSearch, selectedGenre, sort, page]);
 
   const hasActiveFilters =
     search.trim() || selectedGenre || sort !== DEFAULT_SORT;
@@ -242,8 +281,8 @@ export default function BrowsePage() {
       return "Could not load results.";
     }
 
-    const count = animeList.length;
-    const noun = count === 1 ? "anime" : "anime";
+    const count = pageData.totalElements;
+    const noun = "anime";
 
     if (!hasActiveFilters) {
       return `${count} ${noun} available`;
@@ -254,8 +293,7 @@ export default function BrowsePage() {
     }
 
     return `${count} ${noun} match your filters`;
-  }, [loading, error, animeList.length, hasActiveFilters]);
-
+  }, [loading, error, pageData.totalElements, hasActiveFilters]);
   return (
     <div className={styles.root}>
       <section className={styles.header}>
@@ -327,9 +365,8 @@ export default function BrowsePage() {
                         type="button"
                         onClick={() => handleQuickAdd(animeId)}
                         disabled={isAdding || isInWatchlist || watchlistLoading}
-                        className={`${styles.quickAddButton} ${
-                          isInWatchlist ? styles.quickAddButtonSaved : ""
-                        }`}
+                        className={`${styles.quickAddButton} ${isInWatchlist ? styles.quickAddButtonSaved : ""
+                          }`}
                       >
                         {isAdding
                           ? "Adding..."
@@ -342,6 +379,32 @@ export default function BrowsePage() {
                 />
               );
             })}
+          </div>
+        )}
+
+        {!loading && !error && pageData.totalPages > 1 && (
+          <div className={styles.pagination}>
+            <button
+              type="button"
+              onClick={handlePreviousPage}
+              disabled={pageData.first}
+              className={styles.pageButton}
+            >
+              Previous
+            </button>
+
+            <span className={styles.pageInfo}>
+              Page {pageData.page + 1} of {pageData.totalPages}
+            </span>
+
+            <button
+              type="button"
+              onClick={handleNextPage}
+              disabled={pageData.last}
+              className={styles.pageButton}
+            >
+              Next
+            </button>
           </div>
         )}
       </section>

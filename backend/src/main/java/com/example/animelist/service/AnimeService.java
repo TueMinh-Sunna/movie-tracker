@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import java.util.List;
+import com.example.animelist.dto.PagedResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class AnimeService {
@@ -20,31 +24,53 @@ public class AnimeService {
         this.animeRepository = animeRepository;
     }
 
-    public List<AnimeSummaryResponse> getAnimeList(String search, String genre, String sort) {
+    public PagedResponse<AnimeSummaryResponse> getAnimeList(
+            String search,
+            String genre,
+            String sort,
+            int page,
+            int size
+    ) {
         Sort sorting = buildSort(sort);
 
-        List<Anime> animeList;
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 50);
+
+        Pageable pageable = PageRequest.of(safePage, safeSize, sorting);
+
+        Page<Anime> animePage;
 
         boolean hasSearch = search != null && !search.isBlank();
         boolean hasGenre = genre != null && !genre.isBlank();
 
         if (hasSearch && hasGenre) {
-            animeList = animeRepository.findByTitleContainingIgnoreCaseAndGenresNameIgnoreCase(
+            animePage = animeRepository.findByTitleContainingIgnoreCaseAndGenresNameIgnoreCase(
                     search.trim(),
                     genre.trim(),
-                    sorting
+                    pageable
             );
         } else if (hasSearch) {
-            animeList = animeRepository.findByTitleContainingIgnoreCase(search.trim(), sorting);
+            animePage = animeRepository.findByTitleContainingIgnoreCase(search.trim(), pageable);
         } else if (hasGenre) {
-            animeList = animeRepository.findByGenresNameIgnoreCase(genre.trim(), sorting);
+            animePage = animeRepository.findByGenresNameIgnoreCase(genre.trim(), pageable);
         } else {
-            animeList = animeRepository.findAll(sorting);
+            animePage = animeRepository.findAll(pageable);
         }
 
-        return animeList.stream()
+        List<AnimeSummaryResponse> content = animePage.getContent()
+                .stream()
                 .map(this::toSummaryResponse)
                 .toList();
+
+        return new PagedResponse<>(
+                content,
+                animePage.getNumber(),
+                animePage.getSize(),
+                animePage.getTotalElements(),
+                animePage.getTotalPages(),
+                animePage.isFirst(),
+                animePage.isLast()
+        );
     }
 
     public AnimeDetailResponse getAnimeById(Long id) {

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.example.animelist.dto.PagedResponse;
 import java.util.List;
 
 @RestController
@@ -22,12 +22,14 @@ public class AnimeController {
     }
 
     @GetMapping
-    public List<AnimeSummaryResponse> getAnimeList(
+    public PagedResponse<AnimeSummaryResponse> getAnimeList(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String genre,
-            @RequestParam(required = false) String sort
+            @RequestParam(required = false) String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size
     ) {
-        return animeService.getAnimeList(search, genre, sort);
+        return animeService.getAnimeList(search, genre, sort, page, size);
     }
 
     @GetMapping("/{id}")

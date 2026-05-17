@@ -1,17 +1,16 @@
 services:
   db:
-    image: mariadb:11.8
-    container_name: animelist-db
-    restart: unless-stopped
+    image: mariadb:11.4
+    container_name: mini-anime-list-db
     environment:
+      MARIADB_ROOT_PASSWORD: sapassword
       MARIADB_DATABASE: animelist
-      MARIADB_USER: animelist_user
-      MARIADB_PASSWORD: animelist_password
-      MARIADB_ROOT_PASSWORD: root_password
+    ports:
+      - "3307:3306"
     volumes:
-      - db_data:/var/lib/mysql
+      - mini_anime_list_db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "mariadb-admin ping -h localhost -u root -p$${MARIADB_ROOT_PASSWORD}"]
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -19,29 +18,26 @@ services:
   backend:
     build:
       context: ./backend
-    container_name: animelist-backend
-    restart: unless-stopped
+    container_name: mini-anime-list-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/animelist
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: sapassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_NAME: animelist
-      DB_USER: animelist_user
-      DB_PASSWORD: animelist_password
-    ports:
-      - "8081:8080"
 
   frontend:
     build:
       context: ./frontend
-    container_name: animelist-frontend
-    restart: unless-stopped
+    container_name: mini-anime-list-frontend
+    ports:
+      - "5173:80"
     depends_on:
       - backend
-    ports:
-      - "3000:80"
 
 volumes:
-  db_data:
+  mini_anime_list_db_data:

@@ -5,7 +5,13 @@ import {
   normalizeGenreList,
 } from "../mappers/animeMappers";
 
-export async function getAnimeList({ search = "", genre = "", sort = "" } = {}) {
+export async function getAnimeList({
+  search = "",
+  genre = "",
+  sort = "",
+  page = 0,
+  size = 12,
+} = {}) {
   const params = new URLSearchParams();
 
   if (search.trim()) {
@@ -20,11 +26,15 @@ export async function getAnimeList({ search = "", genre = "", sort = "" } = {}) 
     params.set("sort", sort.trim());
   }
 
-  const queryString = params.toString();
-  const path = queryString ? `/api/anime?${queryString}` : "/api/anime";
+  params.set("page", String(page));
+  params.set("size", String(size));
 
-  const data = await apiFetch(path);
-  return normalizeAnimeList(data);
+  const data = await apiFetch(`/api/anime?${params.toString()}`);
+
+  return {
+    ...data,
+    content: normalizeAnimeList(data.content || []),
+  };
 }
 
 export async function getAnimeById(id) {

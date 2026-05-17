@@ -1,23 +1,19 @@
 package com.example.animelist.repository;
 
 import com.example.animelist.entity.Anime;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
-import java.util.Optional;
 
 public interface AnimeRepository extends JpaRepository<Anime, Long> {
 
-    List<Anime> findByTitleContainingIgnoreCase(String titlePart, Sort sort);
+    Page<Anime> findByTitleContainingIgnoreCase(String titlePart, Pageable pageable);
 
-    List<Anime> findByGenresNameIgnoreCase(String genreName, Sort sort);
+    Page<Anime> findByGenresNameIgnoreCase(String genreName, Pageable pageable);
 
-    List<Anime> findByTitleContainingIgnoreCaseAndGenresNameIgnoreCase(
+    Page<Anime> findByTitleContainingIgnoreCaseAndGenresNameIgnoreCase(
             String titlePart,
             String genreName,
-            Sort sort
+            Pageable pageable
     );
-
-    Optional<Anime> findById(Long id);
 }
