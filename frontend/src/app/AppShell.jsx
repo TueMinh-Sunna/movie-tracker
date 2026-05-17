@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 export default function AppShell({ user, onLogout }) {
   return (
@@ -15,6 +16,8 @@ export default function AppShell({ user, onLogout }) {
       >
         <Outlet />
       </main>
+
+      <Footer />
     </>
   );
 }

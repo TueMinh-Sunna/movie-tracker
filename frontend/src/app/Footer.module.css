@@ -1,0 +1,114 @@
+.root {
+  margin-top: var(--space-10);
+  border-top: 1px solid var(--color-border-soft);
+  background:
+    radial-gradient(circle at top left, rgba(79, 70, 229, 0.1), transparent 28%),
+    var(--color-surface);
+}
+
+.inner {
+  width: min(100% - 32px, var(--content-width-lg));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: var(--space-8);
+  padding: var(--space-8) 0;
+}
+
+.brandSection {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-h3);
+}
+
+.description {
+  max-width: 64ch;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-body);
+}
+
+.infoSection {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.group {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+}
+
+.groupTitle {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.techList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.techList span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+}
+
+.link {
+  width: fit-content;
+  color: var(--color-accent);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+}
+
+.link:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}
+
+.version {
+  color: var(--color-text-soft);
+  font-size: var(--font-size-small);
+}
+
+.bottom {
+  border-top: 1px solid var(--color-border-soft);
+  padding: var(--space-4) 0;
+}
+
+.bottom p {
+  width: min(100% - 32px, var(--content-width-lg));
+  margin: 0 auto;
+  color: var(--color-text-soft);
+  font-size: var(--font-size-small);
+}
+
+@media (max-width: 760px) {
+  .inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  .infoSection {
+    grid-template-columns: 1fr;
+  }
+}
