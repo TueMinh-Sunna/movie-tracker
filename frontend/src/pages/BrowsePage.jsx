@@ -32,6 +32,7 @@ export default function BrowsePage() {
   const selectedGenre = searchParams.get("genre") ?? "";
   const sort = searchParams.get("sort") ?? DEFAULT_SORT;
   const page = Number(searchParams.get("page") ?? "0");
+  const isReset = searchParams.get("reset") === "true";
 
   const debouncedSearch = useDebouncedValue(search, 300);
 
@@ -59,7 +60,9 @@ export default function BrowsePage() {
   function updateBrowseParam(key, value) {
     const nextParams = new URLSearchParams(searchParams);
 
-    if (!value || value === DEFAULT_SORT) {
+    nextParams.delete("reset");
+
+    if (!value) {
       nextParams.delete(key);
     } else {
       nextParams.set(key, value);
@@ -74,6 +77,8 @@ export default function BrowsePage() {
 
   function goToPage(nextPage) {
     const nextParams = new URLSearchParams(searchParams);
+
+    nextParams.delete("reset");
 
     if (nextPage <= 0) {
       nextParams.delete("page");
@@ -105,7 +110,8 @@ export default function BrowsePage() {
   }
 
   function handleClearFilters() {
-    setSearchParams({});
+    localStorage.removeItem(BROWSE_FILTERS_STORAGE_KEY);
+    setSearchParams({ reset: "true" });
   }
 
   async function handleQuickAdd(animeId) {
@@ -163,6 +169,10 @@ export default function BrowsePage() {
   }
 
   useEffect(() => {
+    if (isReset) {
+      return;
+    }
+
     if (searchParams.toString()) {
       return;
     }
@@ -183,22 +193,26 @@ export default function BrowsePage() {
       nextParams.set("genre", savedFilters.genre);
     }
 
-    if (savedFilters.sort && savedFilters.sort !== DEFAULT_SORT) {
+    if (savedFilters.sort) {
       nextParams.set("sort", savedFilters.sort);
     }
 
     if (nextParams.toString()) {
       setSearchParams(nextParams, { replace: true });
     }
-  }, [searchParams, setSearchParams]);
+  }, [isReset, searchParams, setSearchParams]);
 
   useEffect(() => {
+    if (isReset) {
+      return;
+    }
+
     writeLocalStorage(BROWSE_FILTERS_STORAGE_KEY, {
       search,
       genre: selectedGenre,
       sort,
     });
-  }, [search, selectedGenre, sort]);
+  }, [isReset, search, selectedGenre, sort]);
 
   useEffect(() => {
     async function loadGenres() {
@@ -270,7 +284,7 @@ export default function BrowsePage() {
   }, [debouncedSearch, selectedGenre, sort, page]);
 
   const hasActiveFilters =
-    search.trim() || selectedGenre || sort !== DEFAULT_SORT;
+    !isReset && (search.trim() || selectedGenre || sort !== DEFAULT_SORT);
 
   const resultsLabel = useMemo(() => {
     if (loading) {
